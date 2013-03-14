@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="80">
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <platform>2</platform>
+      </toolsSet>
+      <dbx_gdbdebugger version="1">
+        <gdb_pathmaps>
+        </gdb_pathmaps>
+        <gdb_interceptlist>
+          <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
+        </gdb_interceptlist>
+        <gdb_options>
+          <DebugOptions>
+          </DebugOptions>
+        </gdb_options>
+        <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
+      </dbx_gdbdebugger>
+      <nativedebugger version="1">
+        <engine>gdb</engine>
+      </nativedebugger>
+      <runprofile version="9">
+        <runcommandpicklist>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -U ../test_data/SmallTestIllumina_R1.fastq.gz -l ../test_data/vectors.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -454 ../test_data/Small454Test.sff -l ../test_data/vectors.fasta -o test</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -U ../test_data/SmallTestIllumina_R1.fastq.gz -l ../test_data/vectors.fasta -o test</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors2.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/newbler.151.fa</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -U ../test_data/ -o test -l ../test_data/newbler.151.fa</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -U ../test_data/151_SE.fastq -o test -l ../test_data/newbler.151.fa</runcommandpicklistitem>
+        </runcommandpicklist>
+        <runcommand>./slopmap -U ../test_data/151_SE.fastq -o test -l ../test_data/newbler.151.fa</runcommand>
+        <rundir>../bin/</rundir>
+        <buildfirst>false</buildfirst>
+        <terminal-type>0</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+  </confs>
+</configurationDescriptor>
