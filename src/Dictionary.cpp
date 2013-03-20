@@ -32,6 +32,7 @@ int BuildLibDictionary(string filename) {
         if(str.substr(0,1)== ">") {
             if( contaminant_read.length() > 0) 
             {
+               LibDictId.insert(std::pair<string, int>(lib_id, contaminant_read.length()));
                PutLibKmer(contaminant_read, lib_id);
                line_cnt = 0;
                contaminant_read.clear();
@@ -54,6 +55,7 @@ int BuildLibDictionary(string filename) {
     infile.close();
     
     /*The last one : */
+    LibDictId.insert(std::pair<string, int>(lib_id, contaminant_read.length()));
     PutLibKmer(contaminant_read, lib_id);
     
     contaminant_read.clear();
@@ -68,9 +70,9 @@ void PutLibKmer(string str, string lib_id)
   int line_len = str.length();
   /*k_mer_struct - the structure wich holds information about k-mers. This structure is saved in the dictionary.*/
   k_mer_struct k_struct;
-  vector<k_mer_struct> rec_id_set;
+  
         
-  for(int w=0; w< line_len-KMER_SIZE; w++) {
+  for(long w=0; w< line_len-KMER_SIZE; w+=DISTANCE) {
     
      string seq0;
    
@@ -82,55 +84,45 @@ void PutLibKmer(string str, string lib_id)
        seq0 = str.substr(w, line_len-w);
      }
     
-     /*Making complement : */
-     string seq_complement = MakeSeqComplement(seq0);
                 
                 
      /*Sequence (read) ID:*/
      k_struct.seq_id = lib_id;
      /*Calculating a position in the read:*/
      k_struct.pos = w;
-      
+     
       
      map<string, vector<k_mer_struct> >::iterator it_LibDict = LibDict.find(seq0);
     
      if(it_LibDict == LibDict.end()) 
      {
+         vector<k_mer_struct> rec_id_set;
          rec_id_set.push_back(k_struct);
          LibDict.insert(std::pair<string, vector<k_mer_struct> >(seq0, rec_id_set));
-         rec_id_set.clear();
      } else 
      {
          (*it_LibDict).second.push_back(k_struct);
      }
          
-         
-     it_LibDict = LibDict.find(seq_complement);
-    
-     if(it_LibDict == LibDict.end()) 
-     {
-        rec_id_set.push_back(k_struct);
-        LibDict.insert(std::pair<string, vector<k_mer_struct> >(seq_complement, rec_id_set));
-        rec_id_set.clear();
-     } else 
-     {
-        (*it_LibDict).second.push_back(k_struct);
-     }
-         
      /*Making reverse complement*/
-     reverse( seq_complement.begin(), seq_complement.end() );
-     it_LibDict = LibDict.find(seq_complement);
+     /*string seq_rev_complement = MakeRevComplement(seq0);
+     if (seq0 == seq_rev_complement ) {
+         cout << seq0 << " " << seq_rev_complement << endl;
+     }
+     it_LibDict = LibDict.find(seq_rev_complement);
     
      if(it_LibDict == LibDict.end()) 
      {
+        vector<k_mer_struct> rec_id_set;
         rec_id_set.push_back(k_struct);
-        LibDict.insert(std::pair<string, vector<k_mer_struct> >(seq_complement, rec_id_set));
-        rec_id_set.clear();
+        LibDict.insert(std::pair<string, vector<k_mer_struct> >(seq_rev_complement, rec_id_set));
+        
      } else 
      {
         (*it_LibDict).second.push_back(k_struct);
+      //  cout << (*it_LibDict).first << endl;
      }
-         
+     **/    
     }
     
   

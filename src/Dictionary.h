@@ -31,9 +31,9 @@ using namespace std;
 /*Extern variables*/
 extern map<string, vector<k_mer_struct> > LibDict;
 extern map<string, vector<k_mer_struct> >::iterator it_LibDict;
-
+extern map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
 extern short KMER_SIZE;
-
+ 
 /*Builds a new Contaminants Dictionary. Here it assumes that frequency is 1*/
 int BuildLibDictionary(string filename);
 

@@ -20,13 +20,14 @@
 #include <pthread.h>
 #include <math.h>
 #include "Read.h"
+#include <algorithm>    // std::sort
 
 using namespace std;
 
 typedef struct  {
     //string seq_id; //seq id related to k_mer in the screening file
     string seq_id;
-    int pos; //position of the k_mer in the screening file
+    long pos; //position of the k_mer in the screening file
 } k_mer_struct;
 
 
@@ -39,24 +40,29 @@ typedef struct {
     
 } HitData;
 
-
 typedef struct {
-    int pos;
-    int flag;
-    int i;
-} DistanceStruct;
+    long start_pos;
+    long end_pos;
+    string lib_id;
+} LibHitData;
+
 
 /*Extern variables*/
 extern map<string, vector<k_mer_struct> > LibDict;
 extern map<string, vector<k_mer_struct> >::iterator it_LibDict;
+extern map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
 extern short KMER_SIZE;
 extern short DISTANCE;
 extern short NUM_CONSEQUITIVE_HITS;
 extern short NUM_HITS;
 extern bool mode_flag;
+extern short similarity_threshold;
+
+vector<LibHitData> CheckForLib(string seq);
+vector<LibHitData> Similarity(vector <HitData> matches, short read_len) ;
 
 
-string CheckForLib(string seq);
+
 
 #endif	/* KMERROUTINE_H */
 

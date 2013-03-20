@@ -309,7 +309,7 @@ void GetDirectories(std::vector<string> &out, char *directory)
     dpdf = opendir(directory);
     if (dpdf != NULL)
     {
-        while (epdf = readdir(dpdf))
+        while ((epdf = readdir(dpdf)))
         {
             out.push_back(string(epdf->d_name));    
             printf("Filename: %s\n",epdf->d_name);
@@ -371,7 +371,7 @@ vector< vector<string> > GetPEfilenames(string prefix1, string prefix2, char *di
 
 string double2str(double num)
 {
-    char buffer[512];  // make sure this is big enough!!!
+    char buffer[1024];  // make sure this is big enough!!!
     snprintf(buffer, sizeof(buffer), "%g", num);
     
     return string(buffer);
@@ -379,7 +379,7 @@ string double2str(double num)
 
 string int2str(int num)
 {
-    char buffer[256];  // make sure this is big enough!!!
+    char buffer[1024];  // make sure this is big enough!!!
     snprintf(buffer, sizeof(buffer), "%d", num);
     string ans = buffer;
     
