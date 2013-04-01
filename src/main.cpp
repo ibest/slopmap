@@ -26,7 +26,7 @@ using namespace std;
 #define PRG_NAME "sff2fastq"
 #define SFF_FILE_VERSION "0.8.8"
 
-string version = "1.0.0 (2013-03-19)"; 
+string version = "1.0.1 (2013-03-31)"; 
 
 /*Computational parameters (default)*/
 short KMER_SIZE = 15;
@@ -48,6 +48,8 @@ bool illumina_se_flag = false;
 char* illumina_file_name_R1;// = "";
 char* illumina_file_name_R2;// = "";
 char* illumina_file_name_se;
+string pe_output_filename1;
+string pe_output_filename2;
 vector<char*> pe1_names, pe2_names, se_names, roche_names;
 
 /*Roche 454*/
@@ -69,7 +71,7 @@ short similarity_threshold = 75; //75% of similarity
 void Roche454Dynamic();
 void IlluminaDynamic();
 void IlluminaDynamicSE();
-
+void WritePEFile(fstream &pe_output_file, Read *read);
 
 int main(int argc, char *argv[]) 
 {
@@ -97,7 +99,6 @@ int main(int argc, char *argv[])
            cout << "Version: " << version << endl;
            exit(1);
         }
-        
         if( string(argv[i]) == "-t" ) 
         {
            similarity_threshold = atoi(argv[++i]);
@@ -105,7 +106,7 @@ int main(int argc, char *argv[])
         }
         if( string(argv[i]) == "-k" ) 
         {
-           KMER_SIZE = atoi(argv[++i]);
+           KMER_SIZE = atoi(argv[++i]); //kmer length for sampling both the dictionary and the read
            continue;
         }
         if( string(argv[i]) == "-d" ) 
@@ -137,7 +138,7 @@ int main(int argc, char *argv[])
            }
            continue;
         }
-        if( string(argv[i]) == "-1" )
+        if( string(argv[i]) == "-1" ) //Read #1, Illumina
         {
            if ( ( (i+1)<argc ) && (argv[i+1][0] != '-') ) 
            {
@@ -157,7 +158,7 @@ int main(int argc, char *argv[])
            
            continue;
         }
-        if( string(argv[i]) == "-2" )
+        if( string(argv[i]) == "-2" ) //Read #2, Illumina
         {
            if ( ( (i+1)<argc ) && (argv[i+1][0] != '-') ) 
            {
@@ -177,7 +178,7 @@ int main(int argc, char *argv[])
            
            continue;
         } 
-        if( string(argv[i]) == "-U" ) //single-end file mode
+        if( string(argv[i]) == "-U" ) //single-end read mode (Illumina)
         {
            if ( ( (i+1)<argc ) && (argv[i+1][0] != '-') ) 
            {
@@ -197,7 +198,7 @@ int main(int argc, char *argv[])
            
            continue;
         }
-        if( string(argv[i]) == "-454" ) 
+        if( string(argv[i]) == "-454" ) //Roche 454 mode
         {
             if ( ( (i+1)<argc ) && (argv[i+1][0] != '-') ) 
             {
@@ -228,6 +229,8 @@ int main(int argc, char *argv[])
            }
         }
     }
+    
+    //************************VERIFICATION OF THE USER'S INPUTS*****************************
     
     if(output_prefix == "")
     {
@@ -316,6 +319,10 @@ int main(int argc, char *argv[])
                         }
                         
                 }
+                
+                
+                pe_output_filename1 =  output_prefix + "_PE1.fastq";
+                pe_output_filename2 =  output_prefix + "_PE2.fastq";
         }
         
         
@@ -355,6 +362,32 @@ int main(int argc, char *argv[])
         printf("Error! You have to specify the library file.\n");
         return(-1);
     }
+    
+    //Check if output path exist
+    vector<string> t;
+    split_str(output_prefix, t, "/");
+    string t_prefix = "";
+    if(output_prefix[0] == '/') t_prefix += '/';
+    for(int ii=0; ii < (int)t.size()-1; ii++)
+    {
+        t_prefix += t[ii] + "/";
+    }
+    if ( (t_prefix != "") && (!exists( (char*)t_prefix.c_str() ) ) )
+    {
+         cout<< "Warning: path " <<  t_prefix << " in output prefix does not exist" << endl;
+         cout << "Trying to create...\n";
+         if ( MakeDirectory(t_prefix) == 0 )
+         {
+             cout << "Sucess!\n";
+         } 
+         else
+         {
+             cout << "Could not created following path: " << t_prefix << "\n";
+             return 0;
+         }
+    }
+    t.clear();
+    t_prefix.clear();        
     
     /*Building dictionary*/
     BuildLibDictionary(lib_filename);
@@ -503,7 +536,8 @@ void Roche454Dynamic()
 void IlluminaDynamic()
 {
     FILE *rep_file;
-
+    fstream pe_output_file1, pe_output_file2;
+    
     if ( (rep_file = fopen((char*)rep_file_name.c_str(), "w")) == NULL ) 
     {
         fprintf(stderr,"[err] Could not open file '%s' for reading.\n", (char*)rep_file_name.c_str());
@@ -517,8 +551,8 @@ void IlluminaDynamic()
         int ii = 0;
         
         std::string line1, line2;
-        igzstream in1(/*fastq_file1*/pe1_names[jj]); //for R1
-        igzstream in2(/*fastq_file2*/pe2_names[jj]); //for R2
+        igzstream in1( pe1_names[jj] ); //for R1
+        igzstream in2( pe2_names[jj] ); //for R2
         
         cout << "Processing files: " << pe1_names[jj] << ", " << pe2_names[jj] << "\n";
         
@@ -604,14 +638,31 @@ void IlluminaDynamic()
                       string _str = matches[j].lib_id + "\t" + int2str(matches[j].start_pos) + "\t" + int2str(matches[j].end_pos) + "\t" + read1->illumina_readID + "\t" + read1->read + "\t" + read1->illumina_quality_string + "\t" + read2->illumina_readID + "\t" + read2->read + "\t" + read2->illumina_quality_string + "\n";
                       fputs((char*)_str.c_str(), rep_file);
                    }
+                   //Construct FASTQ entry
+                   //Check if output files are already opened:
+                   if(!pe_output_file1.is_open()) {
+                        pe_output_file1.open( pe_output_filename1.c_str(), ios::out );
+                   }
+                   if(!pe_output_file2.is_open()) {
+                        pe_output_file2.open( pe_output_filename2.c_str(), ios::out );
+                   }
+                   
+                   WritePEFile(pe_output_file1, read1);
+                   WritePEFile(pe_output_file2, read2);
                 }
                 else 
                 {
                     matches = CheckForLib(read2->read);
-                    for(unsigned short j=0;j<matches.size(); ++j) 
+                    if(matches.size() > 0) 
                     {
-                      string _str = matches[j].lib_id + "\t" + int2str(matches[j].start_pos) + "\t" + int2str(matches[j].end_pos) + "\t" + read1->illumina_readID + "\t" + read1->read + "\t" + read1->illumina_quality_string + "\t" + read2->illumina_readID + "\t" + read2->read + "\t" + read2->illumina_quality_string + "\n";
-                      fputs((char*)_str.c_str(), rep_file);
+                        for(unsigned short j=0;j<matches.size(); ++j) 
+                        {
+                                string _str = matches[j].lib_id + "\t" + int2str(matches[j].start_pos) + "\t" + int2str(matches[j].end_pos) + "\t" + read1->illumina_readID + "\t" + read1->read + "\t" + read1->illumina_quality_string + "\t" + read2->illumina_readID + "\t" + read2->read + "\t" + read2->illumina_quality_string + "\n";
+                                fputs((char*)_str.c_str(), rep_file);
+                        }
+                        //Construct FASTQ entry
+                        WritePEFile(pe_output_file1, read1);
+                        WritePEFile(pe_output_file2, read2);
                     }
                 }
                 
@@ -633,6 +684,8 @@ void IlluminaDynamic()
         in2.close();
     }
     
+    pe_output_file1.close();
+    pe_output_file2.close();
     
     cout << "====================Done====================\n";  
     fclose(rep_file);
@@ -711,6 +764,9 @@ void IlluminaDynamicSE()
                     {
                         rep_file << matches[j].lib_id << "\t" << matches[j].start_pos << "\t" << matches[j].end_pos << "\t" << read->illumina_readID << "\t" << read->read << "\t" << read->illumina_quality_string << "\n";
                     }
+                    //Create FASTQ entry
+                    //WritePEFile(se_output_file, read);
+                    
                 } 
                 
                 record_block.clear();
@@ -731,4 +787,12 @@ void IlluminaDynamicSE()
     
     
     rep_file.close();
+}
+
+void WritePEFile(fstream &pe_output_file, Read *read)
+{
+    pe_output_file << read->illumina_readID << endl;
+    pe_output_file << read->read << endl;
+    pe_output_file << '+' << endl;
+    pe_output_file << read->illumina_quality_string << endl;
 }

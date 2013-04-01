@@ -2,11 +2,13 @@
 
 
 /*Builds a new Contaminants Dictionary. Here it assumes that frequency is 1*/
-int BuildLibDictionary(string filename) {
+int BuildLibDictionary(char* filename) {
     
-    std::fstream infile;
+    ifstream infile;
     /*Open given file:*/
-    infile.open(filename.c_str());
+    if (!infile.is_open())
+        infile.open( filename, ifstream::in );
+    
     std::string str;
     cout << "Parsing library file " << filename << endl;
     

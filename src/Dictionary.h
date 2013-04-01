@@ -35,7 +35,7 @@ extern map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib
 extern short KMER_SIZE;
  
 /*Builds a new Contaminants Dictionary. Here it assumes that frequency is 1*/
-int BuildLibDictionary(string filename);
+int BuildLibDictionary(char* filename);
 
 void PutLibKmer(string str, string contaminant_id);
 

@@ -86,7 +86,7 @@ vector<LibHitData> CheckForLib(string seq)
    }**/
    
    vector<LibHitData> most_similar = Similarity(matches, seq.length());
-    matches.clear();
+   matches.clear();
    return most_similar;
 }
 

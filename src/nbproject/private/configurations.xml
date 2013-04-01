@@ -24,18 +24,18 @@
       </nativedebugger>
       <runprofile version="9">
         <runcommandpicklist>
-          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/newbler.151.fa</runcommandpicklistitem>
-          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vector.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 90</runcommandpicklistitem>
-          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 96</runcommandpicklistitem>
-          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 99</runcommandpicklistitem>
-          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 100</runcommandpicklistitem>
-          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 1020</runcommandpicklistitem>
           <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 110</runcommandpicklistitem>
           <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 101</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/sampleLib.fasta -t 101</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/sampleLib.fasta -t 101 -k 35</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/sampleLib.fasta -t 75 -k 35</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/sampleLib.fasta -t 75 -k 25</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/sampleLib.fasta -t 75 -k 20</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l /home/ilya/bio/app/SlopMap/test_data/vectors.fasta -t 75 -k 20</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l /home/ilya/bio/app/SlopMap/test_data/sampleLib.fasta -t 75 -k 20</runcommandpicklistitem>
+          <runcommandpicklistitem>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o ../test/test100000 -l /home/ilya/bio/app/SlopMap/test_data/sampleLib.fasta -t 75 -k 20</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 101</runcommand>
+        <runcommand>./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o ../test/test100000 -l /home/ilya/bio/app/SlopMap/test_data/sampleLib.fasta -t 75 -k 20</runcommand>
         <rundir>../bin/</rundir>
         <buildfirst>false</buildfirst>
         <terminal-type>0</terminal-type>
