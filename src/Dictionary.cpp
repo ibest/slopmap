@@ -74,7 +74,7 @@ void PutLibKmer(string str, string lib_id)
   k_mer_struct k_struct;
   
         
-  for(long w=0; w< line_len-KMER_SIZE; w+=DISTANCE) {
+  for(long w=0; w< line_len-KMER_SIZE; /*w+=DISTANCE*/ ++w) {
     
      string seq0;
    
@@ -107,8 +107,9 @@ void PutLibKmer(string str, string lib_id)
      }
          
      /*Making reverse complement*/
-     /*string seq_rev_complement = MakeRevComplement(seq0);
-     if (seq0 == seq_rev_complement ) {
+     string seq_rev_complement = MakeRevComplement(seq0);
+     if (seq0 == seq_rev_complement ) 
+     {
          cout << seq0 << " " << seq_rev_complement << endl;
      }
      it_LibDict = LibDict.find(seq_rev_complement);
@@ -124,7 +125,7 @@ void PutLibKmer(string str, string lib_id)
         (*it_LibDict).second.push_back(k_struct);
       //  cout << (*it_LibDict).first << endl;
      }
-     **/    
+         
     }
     
   

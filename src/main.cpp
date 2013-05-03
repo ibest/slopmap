@@ -26,11 +26,11 @@ using namespace std;
 #define PRG_NAME "sff2fastq"
 #define SFF_FILE_VERSION "0.8.8"
 
-string version = "1.0.1 (2013-03-31)"; 
+string version = "1.1.0 (2013-05-03)"; 
 
 /*Computational parameters (default)*/
-short KMER_SIZE = 15;
-short DISTANCE = 5;
+short KMER_SIZE = 18;
+short DISTANCE = 10;
 short NUM_CONSEQUITIVE_HITS = 3;
 short NUM_HITS = 10;
 bool mode_flag = false; //If this flag is true, the program will check NUM_HITS instead of NUM_CONSEQUITIVE_HITS.
@@ -50,6 +50,7 @@ char* illumina_file_name_R2;// = "";
 char* illumina_file_name_se;
 string pe_output_filename1;
 string pe_output_filename2;
+string se_output_filename;
 vector<char*> pe1_names, pe2_names, se_names, roche_names;
 
 /*Roche 454*/
@@ -269,6 +270,7 @@ int main(int argc, char *argv[])
                 }
                 
             }
+            se_output_filename =  output_prefix + "_SE.fastq";
         } else 
         {
                 if(pe1_names.size() != pe2_names.size())
@@ -446,7 +448,7 @@ void Roche454Dynamic()
 
                 int left_clip = 0, right_clip = 0, nbases = 0;
                 char *bases;
-                uint8_t *qualily;
+                uint8_t *quality;
                 
                 int numreads = (int) h.nreads;
                 
@@ -462,28 +464,22 @@ void Roche454Dynamic()
                     bases = get_read_bases(rd, left_clip, right_clip);
 
                     // create quality array 
-                    qualily = get_read_quality_values(rd, left_clip, right_clip);
+                    quality = get_read_quality_values(rd, left_clip, right_clip);
 
-                    for (int j = 0; j < nbases; j++) 
-                    {
-                        qualily[j] = (qualily[j] <= 93 ? qualily[j] : 93) + 33;
-                    }
-                    
                     vector<LibHitData> matches = CheckForLib(string(bases));
                     if(matches.size() > 0) 
                     {
+                        
                         for(unsigned short j=0;j<matches.size(); ++j) 
                         {
-                           rep_file << matches[j].lib_id << "\t" << matches[j].start_pos << "\t" << matches[j].end_pos << "\t" << rh.name << "\t" << bases << "\t" << qualily << "\n";
+                           rep_file << matches[j].lib_id << "\t" << matches[j].start_pos << "\t" << matches[j].end_pos << "\t" << rh.name << "\t" << bases << "\t" << quality << "\n";
                         }
                     }
-                    
-                    
+                                        
                     free(bases);
-                    free(qualily);
+                    free(quality);
                     free_sff_read_header(&rh);
                     free_sff_read_data(&rd);
-
 
                 }
 
@@ -507,16 +503,14 @@ void Roche454Dynamic()
                 
                    if(ii==3) 
                    {
-                       quality = line;
-                       
                        vector<LibHitData> matches = CheckForLib(string(bases));
-                        if(matches.size() > 0) 
-                        {
-                                for(unsigned short j=0;j<matches.size(); ++j) 
-                                {
-                                        rep_file << matches[j].lib_id << "\t" << matches[j].start_pos << "\t" << matches[j].end_pos << "\t" << readID << "\t" << bases << "\t" << quality << "\n";
-                                }
-                        }
+                       if(matches.size() > 0) 
+                       {
+                          for(unsigned short j=0;j<matches.size(); ++j) 
+                          {
+                             rep_file << matches[j].lib_id << "\t" << matches[j].start_pos << "\t" << matches[j].end_pos << "\t" << readID << "\t" << bases << "\t" << line << "\n";
+                          }
+                       }
                        
                        ii = 0;
                    }
@@ -633,11 +627,11 @@ void IlluminaDynamic()
                 vector<LibHitData> matches = CheckForLib(read1->read);
                 if(matches.size() > 0) 
                 {
-                   for(unsigned short j=0;j<matches.size(); ++j) 
-                   {
+                  for(unsigned short j=0;j<matches.size(); ++j) 
+                  {
                       string _str = matches[j].lib_id + "\t" + int2str(matches[j].start_pos) + "\t" + int2str(matches[j].end_pos) + "\t" + read1->illumina_readID + "\t" + read1->read + "\t" + read1->illumina_quality_string + "\t" + read2->illumina_readID + "\t" + read2->read + "\t" + read2->illumina_quality_string + "\n";
                       fputs((char*)_str.c_str(), rep_file);
-                   }
+                  }
                    //Construct FASTQ entry
                    //Check if output files are already opened:
                    if(!pe_output_file1.is_open()) {
@@ -659,6 +653,13 @@ void IlluminaDynamic()
                         {
                                 string _str = matches[j].lib_id + "\t" + int2str(matches[j].start_pos) + "\t" + int2str(matches[j].end_pos) + "\t" + read1->illumina_readID + "\t" + read1->read + "\t" + read1->illumina_quality_string + "\t" + read2->illumina_readID + "\t" + read2->read + "\t" + read2->illumina_quality_string + "\n";
                                 fputs((char*)_str.c_str(), rep_file);
+                        }
+                        
+                        if(!pe_output_file1.is_open()) {
+                                pe_output_file1.open( pe_output_filename1.c_str(), ios::out );
+                        }
+                        if(!pe_output_file2.is_open()) {
+                                pe_output_file2.open( pe_output_filename2.c_str(), ios::out );
                         }
                         //Construct FASTQ entry
                         WritePEFile(pe_output_file1, read1);
@@ -696,6 +697,7 @@ void IlluminaDynamic()
 void IlluminaDynamicSE()
 {
     fstream rep_file;
+    fstream se_output_file;
     rep_file.open(rep_file_name.c_str(),ios::out);
     
     vector<string> record_block;
@@ -762,10 +764,15 @@ void IlluminaDynamicSE()
                 {
                     for(unsigned short j=0;j<matches.size(); ++j) 
                     {
-                        rep_file << matches[j].lib_id << "\t" << matches[j].start_pos << "\t" << matches[j].end_pos << "\t" << read->illumina_readID << "\t" << read->read << "\t" << read->illumina_quality_string << "\n";
+                       rep_file << matches[j].lib_id << "\t" << matches[j].start_pos << "\t" << matches[j].end_pos << "\t" << read->illumina_readID << "\t" << read->read << "\t" << read->illumina_quality_string << "\n";
                     }
+                    
+                    if(!se_output_file.is_open()) {
+                        se_output_file.open( se_output_filename.c_str(), ios::out );
+                    }
+                  
                     //Create FASTQ entry
-                    //WritePEFile(se_output_file, read);
+                    WritePEFile(se_output_file, read);
                     
                 } 
                 

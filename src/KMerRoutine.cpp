@@ -2,6 +2,7 @@
 
 
 vector<LibHitData> CheckForLib(string seq)
+//unsigned int CheckForLib(string seq)
 {
     //Sampling with some special frequency:
     string read = string(seq);
@@ -10,6 +11,7 @@ vector<LibHitData> CheckForLib(string seq)
     //cout <<  line_len << endl;
     
     vector <HitData> matches;
+    vector<LibHitData> most_similar;
     int i = 0;
     
     while( i+KMER_SIZE< line_len ) 
@@ -22,57 +24,32 @@ vector<LibHitData> CheckForLib(string seq)
        if(it_LibDict != LibDict.end()) 
        {
            /*Got hit:*/
-           HitData t_match_struct;
-           t_match_struct.pos = i;
-           t_match_struct.kmers = (*it_LibDict).second;
-       //    for(unsigned short j=0;j<t_match_struct.kmers.size(); ++j) 
-       //{
-       //    cout << ": " << t_match_struct.kmers[j].seq_id << " " << t_match_struct.kmers[j].pos << " " << kmer_str << endl;
-       //}
-           t_match_struct.k_mer_string = kmer_str;
-           matches.push_back(t_match_struct);
-           
-           /*if(!mode_flag) {
-                if((int)matches.size() == NUM_CONSEQUITIVE_HITS) 
-                {
-                        stop_flag = true;
-                        lib_id = t_match_struct.kmers[0].seq_id;
-                        
-                        break;
-                }
-           }
-           else 
+           if((*it_LibDict).second.size() == 1) 
            {
-               if((int)matches.size() == NUM_HITS) 
-                {
-                        stop_flag = true;
-                        lib_id = t_match_struct.kmers[0].seq_id;
-                        break;
-                }
-           }**/
-       }
-       else {
-           //try reverse complement:
-           it_LibDict = LibDict.find(MakeRevComplement(kmer_str));
-           if(it_LibDict != LibDict.end()) 
+               LibHitData most_similar_lib;
+               most_similar_lib.lib_id = (*it_LibDict).second[0].seq_id;
+               most_similar_lib.start_pos = (*it_LibDict).second[0].pos;
+               most_similar_lib.end_pos = i;
+               most_similar.push_back(most_similar_lib);
+               break;
+           } 
+           /*else
            {
-           /*Got hit:*/
-                HitData t_match_struct;
-                t_match_struct.pos = i;
-                t_match_struct.kmers = (*it_LibDict).second;
-       //    for(unsigned short j=0;j<t_match_struct.kmers.size(); ++j) 
-       //{
-       //    cout << ": " << t_match_struct.kmers[j].seq_id << " " << t_match_struct.kmers[j].pos << " " << kmer_str << endl;
-       //}
-                t_match_struct.k_mer_string = kmer_str;
-                matches.push_back(t_match_struct);
-           }
-           
+               for(unsigned int j=0; j<(*it_LibDict).second.size(); ++j) 
+               {
+                        LibHitData most_similar_lib;
+                        most_similar_lib.lib_id = (*it_LibDict).second[j].seq_id;
+                        most_similar_lib.start_pos = (*it_LibDict).second[j].pos;
+                        most_similar_lib.end_pos = i;
+                        most_similar.push_back(most_similar_lib);
+               }
+               break;
+           }*/
        }
-               
+       
        //if(stop_flag == true) break;   
               
-       i = i+ DISTANCE;   
+       i = i+DISTANCE;   
    }
     
    //Calculate the similarity:
@@ -85,7 +62,8 @@ vector<LibHitData> CheckForLib(string seq)
        }
    }**/
    
-   vector<LibHitData> most_similar = Similarity(matches, seq.length());
+   //vector<LibHitData> most_similar = Similarity(matches, seq.length());
+   //cout << matches.size() << endl;
    matches.clear();
    return most_similar;
 }
@@ -95,14 +73,10 @@ vector<LibHitData> Similarity(vector <HitData> matches, short read_len)
     map<string, int* > scores; //Represent a pair: <LibId,counterb>
     map<string, int*>::iterator it_scores;
     
-    //cout << matches.size() << endl;
-    
     for(unsigned short i=0; i<matches.size(); ++i)
     {
         for(unsigned short j=0; j<matches[i].kmers.size(); ++j) 
         {
-            //cout << matches[i].kmers[j].seq_id << " " << matches[i].k_mer_string << endl;
-            
             it_scores = scores.find(matches[i].kmers[j].seq_id);
             if(it_scores == scores.end())
             {
@@ -115,7 +89,6 @@ vector<LibHitData> Similarity(vector <HitData> matches, short read_len)
             }
             else
             {
-                //scores.insert(std::pair<string,int>(matches[i].kmers[j].seq_id,(*it_scores).second + 1));
                 int tmp = (*it_scores).second[1];
                 (*it_scores).second[0] = (*it_scores).second[0] + 1;
                 (*it_scores).second[1] = tmp;

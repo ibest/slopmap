@@ -59,6 +59,7 @@ extern bool mode_flag;
 extern short similarity_threshold;
 
 vector<LibHitData> CheckForLib(string seq);
+//unsigned int CheckForLib(string seq);
 vector<LibHitData> Similarity(vector <HitData> matches, short read_len) ;
 
 

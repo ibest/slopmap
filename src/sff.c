@@ -413,6 +413,7 @@ get_read_quality_values(sff_read_data rd,
 
     for (i = start; i < stop; i++) {
         *(quality + j) = *(rd.quality + i);
+        *(quality + j) = (*(quality + j) <= 93 ? *(quality + j) : 93) + 33;
         j++;
     }
 
