@@ -56,9 +56,9 @@ extern short DISTANCE;
 extern short NUM_CONSEQUITIVE_HITS;
 extern short NUM_HITS;
 extern bool mode_flag;
-extern short similarity_threshold;
+extern double similarity_threshold;
 
-vector<LibHitData> CheckForLib(string seq);
+LibHitData CheckForLib(string seq);
 //unsigned int CheckForLib(string seq);
 vector<LibHitData> Similarity(vector <HitData> matches, short read_len) ;
 

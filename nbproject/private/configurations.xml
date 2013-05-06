@@ -35,7 +35,7 @@
     <conf name="Default" type="0">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <platform>2</platform>
+        <platform>4</platform>
       </toolsSet>
       <dbx_gdbdebugger version="1">
         <gdb_pathmaps>
@@ -54,18 +54,18 @@
       </nativedebugger>
       <runprofile version="9">
         <runcommandpicklist>
-          <runcommandpicklistitem>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta -t 40 -k 8</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta -t 30 -k 10</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta -t 30 -k 9</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta -t 30 -k 8</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta -t 20 -k 9</runcommandpicklistitem>
           <runcommandpicklistitem>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta -t 10 -k 9</runcommandpicklistitem>
           <runcommandpicklistitem>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta -t 10 -k 15</runcommandpicklistitem>
           <runcommandpicklistitem>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta -k 25</runcommandpicklistitem>
           <runcommandpicklistitem>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta -d 10</runcommandpicklistitem>
           <runcommandpicklistitem>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 10</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 10 -k 12</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.10 -k 12</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454_005 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.05 -k 12</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>bin/./slopmap -454 /home/ilya/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454 -l /home/ilya/bio/slop_map_test/ecoli/02-Genes/lcl\|U00096.2_gene_1206.fasta</runcommand>
+        <runcommand>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454_005 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.05 -k 12</runcommand>
         <rundir>.</rundir>
         <buildfirst>false</buildfirst>
         <terminal-type>0</terminal-type>

@@ -1,7 +1,7 @@
 #include "KMerRoutine.h"
 
 
-vector<LibHitData> CheckForLib(string seq)
+LibHitData CheckForLib(string seq)
 //unsigned int CheckForLib(string seq)
 {
     //Sampling with some special frequency:
@@ -9,9 +9,12 @@ vector<LibHitData> CheckForLib(string seq)
     int line_len = seq.length();
     stoupper(read);
     //cout <<  line_len << endl;
+    //Number of k-mers in the read:
+    unsigned short knum = ceil((double)(line_len - KMER_SIZE + 1)/DISTANCE);
+    unsigned short numhits = 0;
     
-    vector <HitData> matches;
-    vector<LibHitData> most_similar;
+    LibHitData most_similar;
+    most_similar.start_pos = -1;
     int i = 0;
     
     while( i+KMER_SIZE< line_len ) 
@@ -26,12 +29,15 @@ vector<LibHitData> CheckForLib(string seq)
            /*Got hit:*/
            if((*it_LibDict).second.size() == 1) 
            {
-               LibHitData most_similar_lib;
-               most_similar_lib.lib_id = (*it_LibDict).second[0].seq_id;
-               most_similar_lib.start_pos = (*it_LibDict).second[0].pos;
-               most_similar_lib.end_pos = i;
-               most_similar.push_back(most_similar_lib);
-               break;
+               numhits += 1;
+               
+               if(((double)numhits/(double)knum) >= similarity_threshold) 
+               {
+                   most_similar.lib_id = (*it_LibDict).second[0].seq_id;
+                   most_similar.start_pos = (*it_LibDict).second[0].pos;
+                   most_similar.end_pos = (*it_LibDict).second[0].pos;
+                   break;
+               }
            } 
            /*else
            {
@@ -47,8 +53,6 @@ vector<LibHitData> CheckForLib(string seq)
            }*/
        }
        
-       //if(stop_flag == true) break;   
-              
        i = i+DISTANCE;   
    }
     
@@ -64,7 +68,7 @@ vector<LibHitData> CheckForLib(string seq)
    
    //vector<LibHitData> most_similar = Similarity(matches, seq.length());
    //cout << matches.size() << endl;
-   matches.clear();
+   
    return most_similar;
 }
 
