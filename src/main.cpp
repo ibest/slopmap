@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <sparsehash/dense_hash_map>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -20,13 +21,17 @@
 #include <stdlib.h>
 
 
+using google::dense_hash_map;      // namespace where class lives by default
+using tr1::hash;  // or __gnu_cxx::hash, or maybe tr1::hash, depending on your OS
+
+
 using namespace std;
 
 /* D E F I N E S *************************************************************/
 #define PRG_NAME "sff2fastq"
 #define SFF_FILE_VERSION "0.8.8"
 
-string version = "1.1.1 (2013-05-05)"; 
+string version = "1.2.0 (2013-05-08)"; 
 
 /*Computational parameters (default)*/
 short KMER_SIZE = 15;
@@ -35,9 +40,16 @@ short NUM_CONSEQUITIVE_HITS = 3;
 short NUM_HITS = 10;
 bool mode_flag = false; //If this flag is true, the program will check NUM_HITS instead of NUM_CONSEQUITIVE_HITS.
 
+/* STANDARD MAPs
 map<string, vector<k_mer_struct> > LibDict;
 map<string, vector<k_mer_struct> >::iterator it_LibDict;
 map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
+*/
+
+/*Google dense hash*/
+dense_hash_map<string, vector<k_mer_struct> > LibDict;
+dense_hash_map<string, vector<k_mer_struct> >::iterator it_LibDict;
+dense_hash_map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
 
 char *lib_filename;
 bool lib_flag = false;
@@ -76,6 +88,9 @@ void WritePEFile(fstream &pe_output_file, Read *read);
 
 int main(int argc, char *argv[]) 
 {
+    LibDictId.set_empty_key("");
+    LibDict.set_empty_key("");
+    
     double start, finish, elapsed;
     GET_TIME(start);
     

@@ -57,7 +57,7 @@ int BuildLibDictionary(char* filename) {
     infile.close();
     
     /*The last one : */
-    LibDictId.insert(std::pair<string, int>(lib_id, contaminant_read.length()));
+    LibDictId[lib_id] = contaminant_read.length();
     PutLibKmer(contaminant_read, lib_id);
     
     contaminant_read.clear();
@@ -94,13 +94,14 @@ void PutLibKmer(string str, string lib_id)
      k_struct.pos = w;
      
       
-     map<string, vector<k_mer_struct> >::iterator it_LibDict = LibDict.find(seq0);
+     dense_hash_map<string, vector<k_mer_struct> >::iterator it_LibDict = LibDict.find(seq0);
     
      if(it_LibDict == LibDict.end()) 
      {
          vector<k_mer_struct> rec_id_set;
          rec_id_set.push_back(k_struct);
-         LibDict.insert(std::pair<string, vector<k_mer_struct> >(seq0, rec_id_set));
+         //LibDict.insert(std::pair<string, vector<k_mer_struct> >(seq0, rec_id_set));
+         LibDict[seq0] = rec_id_set;
      } else 
      {
          (*it_LibDict).second.push_back(k_struct);
@@ -118,12 +119,11 @@ void PutLibKmer(string str, string lib_id)
      {
         vector<k_mer_struct> rec_id_set;
         rec_id_set.push_back(k_struct);
-        LibDict.insert(std::pair<string, vector<k_mer_struct> >(seq_rev_complement, rec_id_set));
-        
+        //LibDict.insert(std::pair<string, vector<k_mer_struct> >(seq_rev_complement, rec_id_set));
+        LibDict[seq_rev_complement] = rec_id_set;
      } else 
      {
         (*it_LibDict).second.push_back(k_struct);
-      //  cout << (*it_LibDict).first << endl;
      }
          
     }

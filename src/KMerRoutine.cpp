@@ -38,37 +38,12 @@ LibHitData CheckForLib(string seq)
                    most_similar.end_pos = (*it_LibDict).second[0].pos;
                    break;
                }
-           } 
-           /*else
-           {
-               for(unsigned int j=0; j<(*it_LibDict).second.size(); ++j) 
-               {
-                        LibHitData most_similar_lib;
-                        most_similar_lib.lib_id = (*it_LibDict).second[j].seq_id;
-                        most_similar_lib.start_pos = (*it_LibDict).second[j].pos;
-                        most_similar_lib.end_pos = i;
-                        most_similar.push_back(most_similar_lib);
-               }
-               break;
-           }*/
+           }
        }
        
        i = i+DISTANCE;   
    }
     
-   //Calculate the similarity:
-   /*vector<LibHitData> most_similar = Similarity(matches, seq.length());
-   if(most_similar.size() > 0)
-   {
-       for(unsigned short i=0;i<most_similar.size(); ++i) 
-       {
-           cout << "most similar: " << most_similar[i].lib_id << " " << most_similar[i].start_pos << " " << most_similar[i].end_pos << endl;
-       }
-   }**/
-   
-   //vector<LibHitData> most_similar = Similarity(matches, seq.length());
-   //cout << matches.size() << endl;
-   
    return most_similar;
 }
 
