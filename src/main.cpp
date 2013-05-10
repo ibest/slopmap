@@ -36,8 +36,8 @@ string version = "1.2.0 (2013-05-08)";
 /*Computational parameters (default)*/
 short KMER_SIZE = 15;
 short DISTANCE = 3;
-short NUM_CONSEQUITIVE_HITS = 3;
-short NUM_HITS = 10;
+//short NUM_CONSEQUITIVE_HITS = 3;
+//short NUM_HITS = 10;
 bool mode_flag = false; //If this flag is true, the program will check NUM_HITS instead of NUM_CONSEQUITIVE_HITS.
 
 /* STANDARD MAPs
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
            mode_flag = true;
            continue;
         }
-        if( string(argv[i]) == "-nch" ) 
+        /*if( string(argv[i]) == "-nch" ) 
         {
            NUM_CONSEQUITIVE_HITS = atoi(argv[++i]);
            continue;
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
         {
            NUM_HITS = atoi(argv[++i]);
            continue;
-        }
+        }*/
         if(string(argv[i]) == "-l" )
         { 
            if ((i+1)<argc ) 

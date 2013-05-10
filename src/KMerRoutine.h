@@ -56,8 +56,8 @@ extern dense_hash_map<string, vector<k_mer_struct> >::iterator it_LibDict;
 extern dense_hash_map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
 extern short KMER_SIZE;
 extern short DISTANCE;
-extern short NUM_CONSEQUITIVE_HITS;
-extern short NUM_HITS;
+//extern short NUM_CONSEQUITIVE_HITS;
+//extern short NUM_HITS;
 extern bool mode_flag;
 extern double similarity_threshold;
 

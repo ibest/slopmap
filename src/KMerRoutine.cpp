@@ -10,13 +10,15 @@ LibHitData CheckForLib(string seq)
     stoupper(read);
     //cout <<  line_len << endl;
     //Number of k-mers in the read:
-    unsigned short knum = ceil((double)(line_len - KMER_SIZE + 1)/DISTANCE);
+    //unsigned short knum = ceil((double)(line_len - KMER_SIZE + 1)/DISTANCE);
+    unsigned short knum = ceil((double)(line_len/KMER_SIZE));
     unsigned short numhits = 0;
     
     LibHitData most_similar;
     most_similar.start_pos = -1;
     int i = 0;
-    
+    short i0 = 0;
+    short total_len = 0;
     while( i+KMER_SIZE< line_len ) 
     {
        string kmer_str;
@@ -24,24 +26,36 @@ LibHitData CheckForLib(string seq)
        kmer_str = read.substr(i,KMER_SIZE);
        
        it_LibDict = LibDict.find(kmer_str);
+       
        if(it_LibDict != LibDict.end()) 
        {
-           /*Got hit:*/
            if((*it_LibDict).second.size() == 1) 
            {
                numhits += 1;
                
-               if(((double)numhits/(double)knum) >= similarity_threshold) 
+               if(i - i0 >= KMER_SIZE) 
+               {
+                   total_len += KMER_SIZE;
+               }
+               else
+               {
+                   total_len += i - i0;
+               }
+               
+               if(((double)total_len/(double)line_len) >= similarity_threshold) 
                {
                    most_similar.lib_id = (*it_LibDict).second[0].seq_id;
                    most_similar.start_pos = (*it_LibDict).second[0].pos;
                    most_similar.end_pos = (*it_LibDict).second[0].pos;
                    break;
                }
+               
+               i0 = i;
+               
            }
        }
        
-       i = i+DISTANCE;   
+       i = i + DISTANCE;   
    }
     
    return most_similar;
