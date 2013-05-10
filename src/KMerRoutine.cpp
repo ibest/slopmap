@@ -1,5 +1,18 @@
 #include "KMerRoutine.h"
 
+// the muticies, protectors of the shared resources
+extern pthread_mutex_t coutLock;
+extern pthread_mutex_t inQueueLock;
+extern pthread_mutex_t outQueueLock;
+// the shared data
+extern std::list< std::string > inQueue;
+extern std::list< std::string > outQueue;
+
+ extern unsigned long comp_DONE; 
+ extern unsigned long comp_START;
+ extern unsigned long comp_TODO;
+ 
+ 
 
 LibHitData CheckForLib(string seq)
 //unsigned int CheckForLib(string seq)
@@ -24,9 +37,9 @@ LibHitData CheckForLib(string seq)
        string kmer_str;
        
        kmer_str = read.substr(i,KMER_SIZE);
-       
+       //pthread_mutex_lock(&outQueueLock);
        it_LibDict = LibDict.find(kmer_str);
-       
+       //pthread_mutex_unlock(&outQueueLock);
        if(it_LibDict != LibDict.end()) 
        {
            if((*it_LibDict).second.size() == 1) 
@@ -61,82 +74,59 @@ LibHitData CheckForLib(string seq)
    return most_similar;
 }
 
-vector<LibHitData> Similarity(vector <HitData> matches, short read_len) 
-{
-    map<string, int* > scores; //Represent a pair: <LibId,counterb>
-    map<string, int*>::iterator it_scores;
-    
-    for(unsigned short i=0; i<matches.size(); ++i)
-    {
-        for(unsigned short j=0; j<matches[i].kmers.size(); ++j) 
-        {
-            it_scores = scores.find(matches[i].kmers[j].seq_id);
-            if(it_scores == scores.end())
-            {
-                int *a = NULL;
-                a = new int[3];
-                a[0] = 1;
-                a[1] = matches[i].kmers[j].pos;
-                a[2] = matches[i].kmers[j].pos;
-                scores.insert(std::pair<string,int* >(matches[i].kmers[j].seq_id,a)); //LibId, start pos, end pos
-            }
-            else
-            {
-                int tmp = (*it_scores).second[1];
-                (*it_scores).second[0] = (*it_scores).second[0] + 1;
-                (*it_scores).second[1] = tmp;
-                (*it_scores).second[2] = matches[i].kmers[j].pos;
-            }
-            
-        }
-        //cout << endl;
-    }
-    
-    //Now we have to find a maximum:
-    //Build a second map with keys that are the first's map values and values as the first map's keys.
-    map<int, string > tmp_scores;
-    it_scores = scores.begin();
-    while(it_scores != scores.end())
-    {
-        tmp_scores.insert(std::pair<int,string>((*it_scores).second[0], (*it_scores).first));
-        it_scores++;
-    }
-    
-    vector<LibHitData> most_similar;
-    
-    //Now threshold:
-    if(tmp_scores.size() > 0)
-    {
-        map<int, string>::reverse_iterator it_tmp_scores;
-        it_tmp_scores = tmp_scores.rbegin();
-        double score = 0.0;
-        while(it_tmp_scores != tmp_scores.rend())
-        {
-                score = ((double)(*it_tmp_scores).first/(double)(floor((read_len-KMER_SIZE)/DISTANCE)+1))*100;
-                if(score >= similarity_threshold)
-                {
-                    
-                    LibHitData most_similar_lib;
-                    //cout << (double)(*it_tmp_scores).first << (*it_tmp_scores).second << endl;
-                    most_similar_lib.lib_id = (*it_tmp_scores).second;
-                    //cout << (*scores.find(most_similar_lib.lib_id)).second[1] << endl;
-                    most_similar_lib.start_pos = (*scores.find(most_similar_lib.lib_id)).second[1];
-                    most_similar_lib.end_pos = (*scores.find(most_similar_lib.lib_id)).second[2];
-                    most_similar.push_back(most_similar_lib);
-                }
-                else
-                {
-                    break;
-                }
-                it_tmp_scores++;
-                
-        }
-    }
-    
-    
-    tmp_scores.clear();
-    scores.clear();
-    
-    return most_similar;
-}
 
+
+void CheckForLib2(string seq) 
+{
+    /*
+    string read = string(seq);
+    int line_len = seq.length();
+    stoupper(read);
+    int ii = 0;
+    comp_TODO = ceil((double)(line_len - KMER_SIZE));
+    while( ii+KMER_SIZE< line_len )  // fill inQueue will rubbish data since this isn't an actual computation...
+    {
+        string kmer_str;
+        kmer_str = read.substr(ii,KMER_SIZE);
+        inQueue.push_back(kmer_str);
+        ii++;
+   }
+   
+    
+   
+    for (unsigned long i=0; i<16; i++) // start the threads
+    {
+        pthread_t *tId( new pthread_t );   threadIdList.push_back(tId);
+        thread_detail Y; Y.num=i; thread_table.push_back(Y);
+        int rc( pthread_create( tId, NULL, workerThread, (void *)(&(thread_table.back() )) ) );
+        if (rc) { std::cout<<"ERROR; return code from pthread_create() "<<comp_START<<"\n"; std::cout.flush();
+              exit(-1); }
+   }
+  
+   // now we wait for the threads to terminate, perhaps updating the screen with info as we go. 
+   
+   while (comp_DONE != comp_TODO)
+   {
+      // poll the queue to get a status update on computation
+      pthread_mutex_lock(&outQueueLock);
+      comp_DONE = outQueue.size();
+      pthread_mutex_unlock(&outQueueLock);
+   } // big while loop
+
+   // call join to kill all worker threads
+   std::list< pthread_t* >::iterator i(threadIdList.begin());
+   while (i!=threadIdList.end())
+   {
+    if (pthread_join( *(*i), NULL)!=0) { std::cout<<"Thread join error!\n"; exit(1); }
+    delete (*i);
+    threadIdList.erase(i++);  
+   }
+   //std::cout<<"\n";
+   
+   
+    // clean-up
+   inQueue.clear();
+   outQueue.clear();     
+     */   
+    // pthread_exit(NULL);
+}

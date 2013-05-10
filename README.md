@@ -2,17 +2,17 @@ Usage:
 
 For paired-end Illumina:
 
-./slopmap -1 <PE1 filename> -2 <PE1 filename> -l <Library name> -o <Output prefix> [-k <KMER_SIZE> -d <DISTANCE> -nch <NUM_CONSEQUITIVE_HITS> -nc <NUM_HITS> -t <THRESHOLD>]
+./slopmap -1 <PE1 filename> -2 <PE1 filename> -l <Library name> -o <Output prefix> [-k <KMER_SIZE> -d <DISTANCE> -t <THRESHOLD>]
 
 
 For single-end Illumina:
 
-./slopmap -U <SE filename> -l <Library name> -o <Output prefix> [-k <KMER_SIZE> -d <DISTANCE> -nch <NUM_CONSEQUITIVE_HITS> -nc <NUM_HITS> -t <THRESHOLD>]
+./slopmap -U <SE filename> -l <Library name> -o <Output prefix> [-k <KMER_SIZE> -d <DISTANCE> -t <THRESHOLD>]
 
 
 For Roche 454:
 
-./slopmap -454 <454 filename> -l <Library name> -o <Output prefix> [-k <KMER_SIZE> -d <DISTANCE> -nch <NUM_CONSEQUITIVE_HITS> -nc <NUM_HITS>  -t <THRESHOLD>]
+./slopmap -454 <454 filename> -l <Library name> -o <Output prefix> [-k <KMER_SIZE> -d <DISTANCE> -t <THRESHOLD>]
 
 
 Default parameters:

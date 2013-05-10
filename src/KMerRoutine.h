@@ -12,13 +12,15 @@
 #include <iostream>
 #include <sparsehash/dense_hash_map>
 #include <string>
-#include <map>
 #include <vector>
+#include <list>
 #include <pthread.h>
 #include "util.h"
 #include <streambuf>
 #include <exception>
 #include <pthread.h>
+#include <signal.h>
+#include <sys/select.h>
 #include <math.h>
 #include "Read.h"
 #include <algorithm>    // std::sort
@@ -61,12 +63,11 @@ extern short DISTANCE;
 extern bool mode_flag;
 extern double similarity_threshold;
 
+
 LibHitData CheckForLib(string seq);
 //unsigned int CheckForLib(string seq);
-vector<LibHitData> Similarity(vector <HitData> matches, short read_len) ;
 
-
-
+void CheckForLib2(string seq) ;
 
 #endif	/* KMERROUTINE_H */
 

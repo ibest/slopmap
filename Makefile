@@ -10,7 +10,7 @@ all:  mkobj mkbin gzstream.o libgzstream.a sff.o ascii.o util.o Read.o Dictionar
 		
 #					
 slopmap :   $(OBJ)main.o $(OBJ)KMerRoutine.o $(OBJ)Dictionary.o $(OBJ)Read.o $(OBJ)util.o $(OBJ)ascii.o $(OBJ)sff.o $(OBJ)gzstream.o
-	$(CXX) $(CFLAGS) -o $(BIN)slopmap $(OBJ)main.o $(OBJ)KMerRoutine.o $(OBJ)Dictionary.o $(OBJ)Read.o $(OBJ)util.o $(OBJ)ascii.o $(OBJ)sff.o $(OBJ)gzstream.o -I$(LIBRARY) -Xlinker -lz 
+	$(CXX) $(CFLAGS) -o $(BIN)slopmap $(OBJ)main.o $(OBJ)KMerRoutine.o $(OBJ)Dictionary.o $(OBJ)Read.o $(OBJ)util.o $(OBJ)ascii.o $(OBJ)sff.o $(OBJ)gzstream.o -I$(LIBRARY) -Xlinker -lz -pthread
 	
 main.o :  
 	$(CXX) -Wall -g  -c -o $(OBJ)main.o $(SRC)main.cpp 
