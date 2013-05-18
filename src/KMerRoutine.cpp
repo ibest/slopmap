@@ -24,7 +24,7 @@ LibHitData CheckForLib(string seq)
     //cout <<  line_len << endl;
     //Number of k-mers in the read:
     //unsigned short knum = ceil((double)(line_len - KMER_SIZE + 1)/DISTANCE);
-    unsigned short knum = ceil((double)(line_len/KMER_SIZE));
+//    unsigned short knum = ceil((double)(line_len/KMER_SIZE));
     unsigned short numhits = 0;
     
     LibHitData most_similar;

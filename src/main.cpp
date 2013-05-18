@@ -998,9 +998,9 @@ void WritePEFile(fstream &pe_output_file, Read *read)
 
 void *workerThread(void *threadarg) 
 {
-   struct thread_detail *my_data;
-   my_data = (thread_detail *) threadarg;
-   int taskid = my_data->num;
+//   struct thread_detail *my_data;
+//   my_data = (thread_detail *) threadarg;
+//   int taskid = my_data->num;
    //std::stringstream ss; ss<<taskid;
 
    bool somethingTodo=true;
