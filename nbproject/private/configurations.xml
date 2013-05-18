@@ -39,6 +39,7 @@
                 <in>densehashtable.h</in>
                 <in>hashtable-common.h</in>
                 <in>libc_allocator_with_realloc.h</in>
+                <in>sparseconfig.h</in>
                 <in>sparsehashtable.h</in>
               </df>
               <in>template_util.h</in>
@@ -59,6 +60,7 @@
               <in>port.cc</in>
               <in>port.h</in>
             </df>
+            <in>config.h</in>
             <in>hash_test_interface.h</in>
             <in>hashtable_test.cc</in>
             <in>libc_allocator_with_realloc_test.cc</in>
