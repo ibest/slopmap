@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <iostream>
-#include <sparsehash/dense_hash_map>
+#include "sparsehash-2.0.2/src/google/dense_hash_map"
 #include <string>
 #include <vector>
 #include <list>
