@@ -31,7 +31,7 @@ using namespace std;
 #define PRG_NAME "sff2fastq"
 #define SFF_FILE_VERSION "0.8.8"
 
-string version = "1.2.0 (2013-05-08)"; 
+string version = "1.3.0 (2013-05-18)"; 
 
 /*Computational parameters (default)*/
 short KMER_SIZE = 15;
