@@ -102,7 +102,7 @@
 #include <memory>                           // for alloc
 #include <utility>                          // for pair<>
 #include "internal/densehashtable.h"        // IWYU pragma: export
-#include "sparsehash/internal/libc_allocator_with_realloc.h"
+#include "libc_allocator_with_realloc.h"
 #include HASH_FUN_H                 // for hash<>
 _START_GOOGLE_NAMESPACE_
 
