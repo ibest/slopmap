@@ -1,43 +1,44 @@
-Usage:
+/***********************************************Usage******************************************************************/
 
-For paired-end Illumina:
+Paired-end Illumina:
 
 ./slopmap -1 <PE1 filename> -2 <PE1 filename> -l <Library name> -o <Output prefix> [-k <KMER_SIZE> -d <DISTANCE> -t <THRESHOLD>]
 
 
-For single-end Illumina:
+Single-end Illumina:
 
 ./slopmap -U <SE filename> -l <Library name> -o <Output prefix> [-k <KMER_SIZE> -d <DISTANCE> -t <THRESHOLD>]
 
 
-For Roche 454:
+Roche 454:
 
 ./slopmap -454 <454 filename> -l <Library name> -o <Output prefix> [-k <KMER_SIZE> -d <DISTANCE> -t <THRESHOLD>]
 
 
 Default parameters:
 
--k <KMER_SIZE> 15
+-k <KMER_SIZE> 11
 
--d <DISTANCE> 5 (distance between two consequitive kmers)
+-d <DISTANCE> 5 (distance between two consecutive kmers)
 
 -t <THRESHOLD> 0.75
 
 
-Examples
+/***********************************************Examples******************************************************************/
 
 -Paired-end Illumina:
 
-./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 90
+./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 0.9
 
 
 -Single-end Illumina:
 
-./slopmap -U ../test_data/SmallTestIllumina_R1.fastq.gz -o test -l ../test_data/vectors.fasta -t 0.83
+./slopmap -U ../test_data/SmallTestIllumina_R1.fastq.gz -o test -l ../test_data/vectors.fasta -t 0.83 -d 3
 
 
 -Roche 454:
 
-./slopmap -454 ../test_data/Small454Test.sff -o test -l ../test_data/vectors.fasta -t 0.56
+./slopmap -454 ../test_data/Small454Test.sff -o test -l ../test_data/vectors.fasta -t 0.56 -k 14
+
 
 
