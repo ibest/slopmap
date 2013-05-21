@@ -28,17 +28,17 @@ Default parameters:
 
 -Paired-end Illumina:
 
-./slopmap -1 ../test_data/SmallTestIllumina_R1.fastq.gz -2 ../test_data/SmallTestIllumina_R2.fastq.gz -o test -l ../test_data/vectors.fasta -t 0.9
+./slopmap -1 <SlopMap HOME>/test_data/SmallTestIllumina_R1.fastq.gz -2 <SlopMap HOME>/test_data/SmallTestIllumina_R2.fastq.gz -o test -l <SlopMap HOME>/test_data/vectors.fasta -t 0.9
 
 
 -Single-end Illumina:
 
-./slopmap -U ../test_data/SmallTestIllumina_R1.fastq.gz -o test -l ../test_data/vectors.fasta -t 0.83 -d 3
+./slopmap -U <SlopMap HOME>/test_data/SmallTestIllumina_R1.fastq.gz -o test -l <SlopMap HOME>/test_data/vectors.fasta -t 0.83 -d 3
 
 
 -Roche 454:
 
-./slopmap -454 ../test_data/Small454Test.sff -o test -l ../test_data/vectors.fasta -t 0.56 -k 14
+./slopmap -454 <SlopMap HOME>/test_data/Small454Test.sff -o test -l <SlopMap HOME>/test_data/vectors.fasta -t 0.56 -k 14
 
 
 
