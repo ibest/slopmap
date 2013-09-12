@@ -385,3 +385,16 @@ string int2str(int num)
     
     return ans;
 }
+
+uint32_t dna_number(string s) {
+ 
+  uint32_t num = 0;
+ 
+  for(size_t n=0;n<s.size();n++) {
+ 
+    num = num << 2;
+    num += dnaDict.find(s[n])->first;
+    
+  }
+  return num;
+}

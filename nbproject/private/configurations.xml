@@ -1,109 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="88">
-  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
-    <df root="." name="SlopMap">
-      <df name="src">
-        <df name="sparsehash-2.0.2">
-          <df name="doc">
-          </df>
-          <df name="experimental">
-            <in>example.c</in>
-            <in>libchash.c</in>
-            <in>libchash.h</in>
-          </df>
-          <df name="m4">
-          </df>
-          <df name="packages">
-            <df name="deb">
-            </df>
-            <df name="rpm">
-            </df>
-          </df>
-          <df name="src">
-            <df name="google">
-              <df name="sparsehash">
-                <in>densehashtable.h</in>
-                <in>hashtable-common.h</in>
-                <in>libc_allocator_with_realloc.h</in>
-                <in>sparsehashtable.h</in>
-              </df>
-              <in>template_util.h</in>
-              <in>type_traits.h</in>
-            </df>
-            <df name="sparsehash">
-              <df name="internal">
-                <in>densehashtable.h</in>
-                <in>hashtable-common.h</in>
-                <in>libc_allocator_with_realloc.h</in>
-                <in>sparseconfig.h</in>
-                <in>sparsehashtable.h</in>
-              </df>
-              <in>template_util.h</in>
-              <in>type_traits.h</in>
-            </df>
-            <df name="windows">
-              <df name="google">
-                <df name="sparsehash">
-                  <in>sparseconfig.h</in>
-                </df>
-              </df>
-              <df name="sparsehash">
-                <df name="internal">
-                  <in>sparseconfig.h</in>
-                </df>
-              </df>
-              <in>config.h</in>
-              <in>port.cc</in>
-              <in>port.h</in>
-            </df>
-            <in>config.h</in>
-            <in>hash_test_interface.h</in>
-            <in>hashtable_test.cc</in>
-            <in>libc_allocator_with_realloc_test.cc</in>
-            <in>simple_compat_test.cc</in>
-            <in>simple_test.cc</in>
-            <in>sparsetable_unittest.cc</in>
-            <in>template_util_unittest.cc</in>
-            <in>testutil.h</in>
-            <in>time_hash_map.cc</in>
-            <in>type_traits_unittest.cc</in>
-          </df>
-          <df name="vsprojects">
-            <df name="hashtable_test">
-            </df>
-            <df name="libc_allocator_with_realloc_test">
-            </df>
-            <df name="simple_test">
-            </df>
-            <df name="sparsetable_unittest">
-            </df>
-            <df name="time_hash_map">
-            </df>
-            <df name="type_traits_unittest">
-            </df>
-          </df>
-        </df>
-        <in>Dictionary.cpp</in>
-        <in>Dictionary.h</in>
-        <in>KMerRoutine.cpp</in>
-        <in>KMerRoutine.h</in>
-        <in>Read.cpp</in>
-        <in>Read.h</in>
-        <in>ascii.cpp</in>
-        <in>ascii.h</in>
-        <in>gzstream.C</in>
-        <in>gzstream.h</in>
-        <in>main.cpp</in>
-        <in>sff.c</in>
-        <in>sff.h</in>
-        <in>timer.h</in>
-        <in>util.cpp</in>
-        <in>util.h</in>
-      </df>
-      <df name="test_data">
-      </df>
-    </df>
-  </logicalFolder>
+<configurationDescriptor version="80">
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="Default" type="0">
@@ -128,18 +24,18 @@
       </nativedebugger>
       <runprofile version="9">
         <runcommandpicklist>
-          <runcommandpicklistitem>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454_lclU00096.2_gene_1206_t005_k9 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.4 -k 8 -d 1</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454_lclU00096.2_gene_1206_t005_k9 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.4 -k 7 -d 5</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454_lclU00096.2_gene_1206_t005_k9 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.4 -k 7 -d 3</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454_lclU00096.2_gene_1206_t005_k9 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.4 -k 8</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 ~/bio/slop_map_test/ecoli/00-RawData/GO37VCR01.sff -o test/test454_lclU00096.2_gene_1206_t005_k9 -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.1 -k 8</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -U ~/bio/slop_map_test/yeast/00-RawData/ -o ~/bio/slop_map_test/yeast/ -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.1 -k 9</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -U ~/bio/slop_map_test/yeast/00-RawData/ -o /home/ilya/bio/slop_map_test/yeast/03-Testing/ -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.1 -k 9</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -U ~/bio/slop_map_test/yeast/00-RawData/Test_GATCAG_L001_R1_001.fastq -o /home/ilya/bio/slop_map_test/yeast/03-Testing/ -l ~/bio/slop_map_test/ecoli/02-Genes/lclU00096.2_gene_1206.fasta -t 0.1 -k 9</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -U ~/bio/slop_map_test/yeast/00-RawData/Test_GATCAG_L001_R1_001.fastq -o /home/ilya/bio/slop_map_test/yeast/03-Testing/ -l /home/ilya/bio/slop_map_test/yeast/genes -t 0.1 -k 9</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -U ~/bio/slop_map_test/yeast/00-RawData/Test_GATCAG_L001_R1_001.fastq -o /home/ilya/bio/slop_map_test/yeast/03-Testing/test_sm/lclAF458977.1_gene_4_t01_k9 -l /home/ilya/bio/slop_map_test/yeast/genes/lclAF458977.1_gene_4.fasta -t 0.1 -k 9</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o /home/ilya/bio/app/SlopMap/test/test -l test_data/ref.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o /home/ilya/bio/app/SlopMap/test/test -l test_data/sampleLib.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o /home/ilya/bio/app/SlopMap/test/test -l test_data/sampleLib.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o /home/ilya/bio/app/SlopMap/test/test -l test_data/contaminats.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/in.sff -o /home/ilya/bio/app/SlopMap/test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o /home/ilya/bio/app/SlopMap/test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o /home/ilya/bio/app/SlopMap/test/test -l test_data/vectors.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o /home/ilya/bio/app/SlopMap/test/test_mem -l test_data/ref.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o /home/ilya/bio/app/SlopMap/test/test_mem -l test_data/sampleLib.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o /home/ilya/bio/app/SlopMap/test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>bin/./slopmap -U ~/bio/slop_map_test/yeast/00-RawData/Test_GATCAG_L001_R1_001.fastq -o /home/ilya/bio/slop_map_test/yeast/03-Testing/test_sm/lclAF458977.1_gene_4_t01_k9 -l /home/ilya/bio/slop_map_test/yeast/genes/lclAF458977.1_gene_4.fasta -t 0.1 -k 9</runcommand>
+        <runcommand>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o /home/ilya/bio/app/SlopMap/test/test -l test_data/contaminants.fasta</runcommand>
         <rundir>.</rundir>
         <buildfirst>false</buildfirst>
         <terminal-type>0</terminal-type>

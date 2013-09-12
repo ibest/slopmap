@@ -19,7 +19,8 @@
 #include "sff.h"
 #include "ascii.h"
 #include <stdlib.h>
-
+ #include <stdint.h>
+//#include "dnautil.h"
 
 using google::dense_hash_map;      // namespace where class lives by default
 //using tr1::hash;  // or __gnu_cxx::hash, or maybe tr1::hash, depending on your OS
@@ -31,7 +32,7 @@ using namespace std;
 #define PRG_NAME "sff2fastq"
 #define SFF_FILE_VERSION "0.8.8"
 
-string version = "1.3.0 (2013-05-18)"; 
+string version = "2.0.0 (2013-09-12)"; 
 
 /*Computational parameters (default)*/
 short KMER_SIZE = 15;
@@ -47,10 +48,10 @@ map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
 */
 
 /*Google dense hash*/
-dense_hash_map<string, vector<k_mer_struct> > LibDict;
-dense_hash_map<string, vector<k_mer_struct> >::iterator it_LibDict;
+dense_hash_map<UBYTE, vector<k_mer_struct> > LibDict;
+dense_hash_map<UBYTE, vector<k_mer_struct> >::iterator it_LibDict;
 dense_hash_map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
-
+dense_hash_map<char, int > dnaDict;
 char *lib_filename;
 bool lib_flag = false;
 
@@ -116,14 +117,6 @@ extern "C" {
 
 int main(int argc, char *argv[]) 
 {
-    // set-up the mutexes
-    pthread_mutex_init( &coutLock, NULL );
-    pthread_mutex_init( &inQueueLock, NULL );
-    pthread_mutex_init( &outQueueLock, NULL );
-    
-    LibDictId.set_empty_key("");
-    LibDict.set_empty_key("");
-    
     double start, finish, elapsed;
     GET_TIME(start);
     
@@ -445,53 +438,9 @@ int main(int argc, char *argv[])
     t_prefix.clear();        
     
     /*Building dictionary*/
-    BuildLibDictionary(lib_filename);
+    BuildLibDictionary2(lib_filename);
     
     rep_file_name = output_prefix + ".txt" ;
-    /*
-    // Debug
-    //CheckForLib2("atggcgacgatcgattctatgaataaggaatggcgacgatcgattctatgaataaggacaccacacgtttgagcgatggacccggcttctggactcgtgccacgcgctgatgcaccacacgtttgagcgatggacccggcttctggactcgtgccacgcgctgatgatggcgacgatcgattctatgaataaggacaccacacgtttgagcgatggacccggcttctggactcgtgccacgcgctgatgatggcgacgatcgattctatgaataaggacaccacacgtttgagcgatggacccggcttctggactcgtgccacgcgctgatg");
-        //cout << k << endl;
-    Roche454Dynamic2();
-    cout << "Start threads\n";
-    comp_TODO = inQueue.size();
-    for (unsigned long i=0; i<4; i++) // start the threads
-    {
-        pthread_t *tId( new pthread_t );   //threadIdList.push_back(tId);
-        threadIdList[i] = tId;
-        thread_detail Y; Y.num=i; thread_table.push_back(Y);
-        int rc( pthread_create( tId, NULL, workerThread, (void *)(&(thread_table.back() )) ) );
-        if (rc) { std::cout<<"ERROR; return code from pthread_create() "<<comp_START<<"\n"; std::cout.flush();
-              exit(-1); }
-   }
-    
-   while (1) //comp_DONE != comp_TODO
-   {
-      // poll the queue to get a status update on computation
-      //pthread_mutex_lock(&outQueueLock);
-      comp_DONE = outQueue.size();
-      
-      if( (comp_DONE % 500 == 0) && (comp_DONE > 0))
-        cout << comp_DONE << endl;
-      
-      //pthread_mutex_unlock(&outQueueLock);
-   } // big while loop
-
-   // call join to kill all worker threads
-   std::list< pthread_t* >::iterator i(threadIdList.begin());
-   while (i!=threadIdList.end())
-   {
-    if (pthread_join( *(*i), NULL)!=0) { std::cout<<"Thread join error!\n"; exit(1); }
-    delete (*i);
-    threadIdList.erase(i++);  
-   }
-   
-    // clean-up
-   inQueue.clear();
-   outQueue.clear();  
-    
-   return 0;
-    */
     
     if(!illumina_se_flag)
     {
@@ -507,10 +456,6 @@ int main(int argc, char *argv[])
         Roche454Dynamic();
     }
     
-    pthread_mutex_destroy(&coutLock);
-    pthread_mutex_destroy(&inQueueLock);  
-    pthread_mutex_destroy(&outQueueLock);  
-    
     GET_TIME(finish);
     elapsed = finish - start;
     
@@ -519,6 +464,107 @@ int main(int argc, char *argv[])
 }
 
 void Roche454Dynamic()
+{
+    fstream rep_file;
+    rep_file.open(rep_file_name.c_str(),ios::out);
+    
+    for(int i=0; i<(int)roche_names.size(); ++i)
+    {
+            cout << "Parsing file: " << roche_names[i] << "..." << endl;
+        
+            //If SFF format is given -> process it
+            if( string(roche_names[i]).substr( strlen(roche_names[i])-3, 3 ) == "sff" ) 
+            {
+                cout << "File is in SFF format.\n" ;
+                
+                sff_common_header h;
+                sff_read_header rh;
+                sff_read_data rd;
+                FILE *sff_fp;
+
+                if ( (sff_fp = fopen(roche_names[i], "r")) == NULL ) 
+                {
+                        fprintf(stderr,
+                                "[err] Could not open file '%s' for reading.\n", roche_names[i]);
+                        exit(1);
+                }
+               
+                read_sff_common_header(sff_fp, &h);
+                verify_sff_common_header((char*)PRG_NAME, (char*)SFF_FILE_VERSION, &h);
+
+                int left_clip = 0, right_clip = 0;
+                char *bases;
+                uint8_t *quality;
+                
+                int numreads = (int) h.nreads;
+                
+                for (int i = 0; i < numreads; i++) 
+                { 
+                    read_sff_read_header(sff_fp, &rh);
+                    read_sff_read_data(sff_fp, &rd, h.flow_len, rh.nbases);
+
+                    get_clip_values(rh, 0, &left_clip, &right_clip);
+                    
+                    // create bases string 
+                    bases = get_read_bases(rd, left_clip, right_clip);
+
+                    // create quality array 
+                    quality = get_read_quality_values(rd, left_clip, right_clip);
+
+                    //LibHitData match = CheckForLib(string(bases));
+                    LibHitData match = CheckForLib2(string(bases));
+                    if(match.start_pos != -1) 
+                    {
+                        rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << rh.name << "\t" << bases << "\t" << quality << "\n";
+                    }
+                                        
+                    free(bases);
+                    free(quality);
+                    free_sff_read_header(&rh);
+                    free_sff_read_data(&rd);
+
+                }
+
+                fclose(sff_fp);
+
+               
+            } 
+            else if(string(roche_names[i]).substr( strlen(roche_names[i])-5, 5 ) == "fastq") 
+            {
+               //FASTQ file given. Process it.
+               cout << "File is in FASTQ format, starting conversion...\n" ;
+               
+               string line, bases, quality, readID;
+               int ii = 0;
+               igzstream in(roche_names[i]);
+               while ( getline(in,line) ) 
+               {
+                   if(ii==0) readID = line; /*Read ID*/
+                
+                   if(ii==1) bases = line; /*actual data*/
+                
+                   if(ii==3) 
+                   {
+                       LibHitData match = CheckForLib(string(bases));
+                       if(match.start_pos != -1) 
+                       {
+                          rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << readID << "\t" << bases << "\t" << line << "\n";
+                       }
+                       
+                       ii = 0;
+                   }
+                   ii++;
+               }
+               
+               in.close();
+               
+            }
+    }
+    
+    rep_file.close();
+}
+/*
+void Roche454Dynamic2()
 {
     fstream rep_file;
     rep_file.open(rep_file_name.c_str(),ios::out);
@@ -574,108 +620,7 @@ void Roche454Dynamic()
                     }
                                         
                     free(bases);
-                    free(quality);
-                    free_sff_read_header(&rh);
-                    free_sff_read_data(&rd);
-
-                }
-
-                fclose(sff_fp);
-
-               
-            } 
-            else if(string(roche_names[i]).substr( strlen(roche_names[i])-5, 5 ) == "fastq") 
-            {
-               //FASTQ file given. Process it.
-               cout << "File is in FASTQ format, starting conversion...\n" ;
-               
-               string line, bases, quality, readID;
-               int ii = 0;
-               igzstream in(roche_names[i]);
-               while ( getline(in,line) ) 
-               {
-                   if(ii==0) readID = line; /*Read ID*/
-                
-                   if(ii==1) bases = line; /*actual data*/
-                
-                   if(ii==3) 
-                   {
-                       LibHitData match = CheckForLib(string(bases));
-                       if(match.start_pos != -1) 
-                       {
-                          rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << readID << "\t" << bases << "\t" << line << "\n";
-                       }
-                       
-                       ii = 0;
-                   }
-                   ii++;
-               }
-               
-               in.close();
-               
-            }
-    }
-    
-    rep_file.close();
-}
-
-void Roche454Dynamic2()
-{
-    fstream rep_file;
-    rep_file.open(rep_file_name.c_str(),ios::out);
-    
-    for(int i=0; i<(int)roche_names.size(); ++i)
-    {
-            cout << "Parsing file: " << roche_names[i] << "..." << endl;
-        
-            //If SFF format is given -> process it
-            if( string(roche_names[i]).substr( strlen(roche_names[i])-3, 3 ) == "sff" ) 
-            {
-                cout << "File is in SFF format.\n" ;
-                
-                sff_common_header h;
-                sff_read_header rh;
-                sff_read_data rd;
-                FILE *sff_fp;
-
-                if ( (sff_fp = fopen(roche_names[i], "r")) == NULL ) 
-                {
-                        fprintf(stderr,
-                                "[err] Could not open file '%s' for reading.\n", roche_names[i]);
-                        exit(1);
-                }
-               
-                read_sff_common_header(sff_fp, &h);
-                verify_sff_common_header((char*)PRG_NAME, (char*)SFF_FILE_VERSION, &h);
-
-                int left_clip = 0, right_clip = 0, nbases = 0;
-                char *bases;
-                uint8_t *quality;
-                
-                int numreads = (int) h.nreads;
-                
-                for (int i = 0; i < numreads; i++) 
-                { 
-                    read_sff_read_header(sff_fp, &rh);
-                    read_sff_read_data(sff_fp, &rd, h.flow_len, rh.nbases);
-
-                    get_clip_values(rh, 0, &left_clip, &right_clip);
-                    nbases = right_clip - left_clip;
-
-                    // create bases string 
-                    bases = get_read_bases(rd, left_clip, right_clip);
-
-                    // create quality array 
-                    quality = get_read_quality_values(rd, left_clip, right_clip);
-
-                    /*LibHitData match = CheckForLib(string(bases));
-                    if(match.start_pos != -1) 
-                    {
-                        rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << rh.name << "\t" << bases << "\t" << quality << "\n";
-                    }
-                                        
-                    free(bases);
-                    */
+                    
                     inQueue.push_back(string(bases));
                     
                     
@@ -699,9 +644,9 @@ void Roche454Dynamic2()
                igzstream in(roche_names[i]);
                while ( getline(in,line) ) 
                {
-                   if(ii==0) readID = line; /*Read ID*/
+                   if(ii==0) readID = line; //Read ID
                 
-                   if(ii==1) bases = line; /*actual data*/
+                   if(ii==1) bases = line; //actual data
                 
                    if(ii==3) 
                    {
@@ -723,7 +668,7 @@ void Roche454Dynamic2()
     
     rep_file.close();
 }
-
+*/
 //Dynamic Illumina: does not need space to store reads:
 void IlluminaDynamic()
 {
@@ -822,7 +767,7 @@ void IlluminaDynamic()
                 read2->illumina_quality_string = line2;
                 
                 //Serial realization - useful for debugging if something does not work as expected
-                LibHitData match = CheckForLib(read1->read);
+                LibHitData match = CheckForLib2(read1->read);
                 if(match.start_pos != -1) 
                 {
                   string _str = match.lib_id + "\t" + int2str(match.start_pos) + "\t" + int2str(match.end_pos) + "\t" + read1->illumina_readID + "\t" + read1->read + "\t" + read1->illumina_quality_string + "\t" + read2->illumina_readID + "\t" + read2->read + "\t" + read2->illumina_quality_string + "\n";
@@ -842,7 +787,7 @@ void IlluminaDynamic()
                 }
                 else 
                 {
-                    match = CheckForLib(read2->read);
+                    match = CheckForLib2(read2->read);
                     if(match.start_pos != -1) 
                     {
                         string _str = match.lib_id + "\t" + int2str(match.start_pos) + "\t" + int2str(match.end_pos) + "\t" + read1->illumina_readID + "\t" + read1->read + "\t" + read1->illumina_quality_string + "\t" + read2->illumina_readID + "\t" + read2->read + "\t" + read2->illumina_quality_string + "\n";
@@ -952,7 +897,7 @@ void IlluminaDynamicSE()
                 read->illumina_quality_string = line;
                 
                 //Serial realization - useful for debugging if something does not work as expected
-                LibHitData match = CheckForLib(read->read);
+                LibHitData match = CheckForLib2(read->read);
                 if(match.start_pos != -1) 
                 {
                     rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << read->illumina_readID << "\t" << read->read << "\t" << read->illumina_quality_string << "\n";

@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <iostream>
+#include "sparsehash-2.0.2/src/sparsehash/dense_hash_map"
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -22,10 +23,19 @@
 #include <dirent.h>
 #include <map>
 #include <math.h>
+ #include <stdint.h>
+
+/* Numerical values for bases. */
+#define T_BASE_VAL 0
+#define U_BASE_VAL 0
+#define C_BASE_VAL 1
+#define A_BASE_VAL 2
+#define G_BASE_VAL 3
+#define N_BASE_VAL 4   /* Used in 1/2 byte representation. */
 
 using namespace std;
 //using namespace boost;
-
+using google::dense_hash_map;
 void stoupper(std::string& s);
 char* itoa(int value, char* result, int base);
 string MakeSeqComplement(string init_str);
@@ -48,6 +58,7 @@ vector< vector<string> > GetPEfilenames(string prefix1, string prefix2, char *di
 string i2str(int value, char* result, int base);
 string double2str(double num);
 string int2str(int num);
-
+uint32_t dna_number(string s);
+extern dense_hash_map<char, int > dnaDict;
 #endif	/* UTIL_H */
 

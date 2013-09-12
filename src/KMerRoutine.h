@@ -24,6 +24,7 @@
 #include <math.h>
 #include "Read.h"
 #include <algorithm>    // std::sort
+#include "dnautil.h"
 
 using namespace std;
 using google::dense_hash_map;      // namespace where class lives by default
@@ -53,9 +54,10 @@ typedef struct {
 
 
 /*Extern variables*/
-extern dense_hash_map<string, vector<k_mer_struct> > LibDict;
-extern dense_hash_map<string, vector<k_mer_struct> >::iterator it_LibDict;
+extern dense_hash_map<UBYTE, vector<k_mer_struct> > LibDict;
+extern dense_hash_map<UBYTE, vector<k_mer_struct> >::iterator it_LibDict;
 extern dense_hash_map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
+
 extern short KMER_SIZE;
 extern short DISTANCE;
 //extern short NUM_CONSEQUITIVE_HITS;
@@ -65,9 +67,6 @@ extern double similarity_threshold;
 
 
 LibHitData CheckForLib(string seq);
-//unsigned int CheckForLib(string seq);
-
-void CheckForLib2(string seq) ;
-
+LibHitData CheckForLib2(string seq);
 #endif	/* KMERROUTINE_H */
 

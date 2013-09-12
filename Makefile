@@ -6,11 +6,11 @@ BIN = bin/
 OBJ = obj/
 LIBRARY := ${OBJ}lgzstream.a
 
-all:  mkobj mkbin gzstream.o libgzstream.a sff.o ascii.o util.o Read.o Dictionary.o KMerRoutine.o main.o slopmap 
+all:  mkobj mkbin gzstream.o libgzstream.a sff.o ascii.o util.o Read.o dnautil.o Dictionary.o KMerRoutine.o main.o slopmap 
 		
 #					
-slopmap :   $(OBJ)main.o $(OBJ)KMerRoutine.o $(OBJ)Dictionary.o $(OBJ)Read.o $(OBJ)util.o $(OBJ)ascii.o $(OBJ)sff.o $(OBJ)gzstream.o
-	$(CXX) $(CFLAGS) -o $(BIN)slopmap $(OBJ)main.o $(OBJ)KMerRoutine.o $(OBJ)Dictionary.o $(OBJ)Read.o $(OBJ)util.o $(OBJ)ascii.o $(OBJ)sff.o $(OBJ)gzstream.o -I$(LIBRARY) -Xlinker -lz -pthread
+slopmap :   $(OBJ)main.o $(OBJ)KMerRoutine.o $(OBJ)Dictionary.o $(OBJ)dnautil.o $(OBJ)Read.o $(OBJ)util.o $(OBJ)ascii.o $(OBJ)sff.o $(OBJ)gzstream.o
+	$(CXX) $(CFLAGS) -o $(BIN)slopmap $(OBJ)main.o $(OBJ)KMerRoutine.o $(OBJ)Dictionary.o $(OBJ)dnautil.o $(OBJ)Read.o $(OBJ)util.o $(OBJ)ascii.o $(OBJ)sff.o $(OBJ)gzstream.o -I$(LIBRARY) -Xlinker -lz -pthread
 	
 main.o :  
 	$(CXX) -Wall -g  -c -o $(OBJ)main.o $(SRC)main.cpp 
@@ -20,6 +20,9 @@ KMerRoutine.o :
 	
 Dictionary.o :
 	$(CXX) -Wall -g  -c -o $(OBJ)Dictionary.o $(SRC)Dictionary.cpp
+	
+dnautil.o :  
+	$(CXX) -Wall -g  -c -o $(OBJ)dnautil.o $(SRC)dnautil.cpp 
 
 Read.o :
 	$(CXX) -Wall -g  -c -o $(OBJ)Read.o $(SRC)Read.cpp
