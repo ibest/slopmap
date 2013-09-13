@@ -1,5 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="80">
+<configurationDescriptor version="89">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="0">
+      <df name="bin">
+      </df>
+      <df name="man">
+      </df>
+      <df name="obj">
+      </df>
+      <df name="src">
+        <df name="sparsehash-2.0.2">
+          <df name="doc">
+          </df>
+          <df name="experimental">
+            <in>example.c</in>
+            <in>libchash.c</in>
+            <in>libchash.h</in>
+          </df>
+          <df name="m4">
+          </df>
+          <df name="packages">
+            <df name="deb">
+            </df>
+            <df name="rpm">
+            </df>
+          </df>
+          <df name="src">
+            <df name="google">
+              <df name="sparsehash">
+                <in>densehashtable.h</in>
+                <in>hashtable-common.h</in>
+                <in>libc_allocator_with_realloc.h</in>
+                <in>sparsehashtable.h</in>
+              </df>
+              <in>template_util.h</in>
+              <in>type_traits.h</in>
+            </df>
+            <df name="sparsehash">
+              <df name="internal">
+                <in>densehashtable.h</in>
+                <in>hashtable-common.h</in>
+                <in>libc_allocator_with_realloc.h</in>
+                <in>sparseconfig.h</in>
+                <in>sparsehashtable.h</in>
+              </df>
+              <in>template_util.h</in>
+              <in>type_traits.h</in>
+            </df>
+            <df name="windows">
+              <df name="google">
+                <df name="sparsehash">
+                  <in>sparseconfig.h</in>
+                </df>
+              </df>
+              <df name="sparsehash">
+                <df name="internal">
+                  <in>sparseconfig.h</in>
+                </df>
+              </df>
+              <in>config.h</in>
+              <in>port.cc</in>
+              <in>port.h</in>
+            </df>
+            <in>config.h</in>
+            <in>hash_test_interface.h</in>
+            <in>hashtable_test.cc</in>
+            <in>libc_allocator_with_realloc_test.cc</in>
+            <in>simple_compat_test.cc</in>
+            <in>simple_test.cc</in>
+            <in>sparsetable_unittest.cc</in>
+            <in>template_util_unittest.cc</in>
+            <in>testutil.h</in>
+            <in>time_hash_map.cc</in>
+            <in>type_traits_unittest.cc</in>
+          </df>
+          <df name="vsprojects">
+            <df name="hashtable_test">
+            </df>
+            <df name="libc_allocator_with_realloc_test">
+            </df>
+            <df name="simple_test">
+            </df>
+            <df name="sparsetable_unittest">
+            </df>
+            <df name="time_hash_map">
+            </df>
+            <df name="type_traits_unittest">
+            </df>
+          </df>
+        </df>
+        <in>Dictionary.cpp</in>
+        <in>Dictionary.h</in>
+        <in>KMerRoutine.cpp</in>
+        <in>KMerRoutine.h</in>
+        <in>Read.cpp</in>
+        <in>Read.h</in>
+        <in>ascii.cpp</in>
+        <in>ascii.h</in>
+        <in>dnautil.cpp</in>
+        <in>dnautil.h</in>
+        <in>gzstream.C</in>
+        <in>gzstream.h</in>
+        <in>main.cpp</in>
+        <in>sff.c</in>
+        <in>sff.h</in>
+        <in>timer.h</in>
+        <in>util.cpp</in>
+        <in>util.h</in>
+      </df>
+      <df name="test">
+      </df>
+      <df name="test_data">
+      </df>
+    </df>
+  </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="Default" type="0">
@@ -7,6 +121,18 @@
         <developmentServer>localhost</developmentServer>
         <platform>2</platform>
       </toolsSet>
+      <compile>
+        <compiledirpicklist>
+          <compiledirpicklistitem>.</compiledirpicklistitem>
+          <compiledirpicklistitem>${AUTO_FOLDER}</compiledirpicklistitem>
+        </compiledirpicklist>
+        <compiledir>${AUTO_FOLDER}</compiledir>
+        <compilecommandpicklist>
+          <compilecommandpicklistitem>${MAKE} ${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${AUTO_COMPILE}</compilecommandpicklistitem>
+        </compilecommandpicklist>
+        <compilecommand>${AUTO_COMPILE}</compilecommand>
+      </compile>
       <dbx_gdbdebugger version="1">
         <gdb_pathmaps>
         </gdb_pathmaps>
@@ -24,18 +150,15 @@
       </nativedebugger>
       <runprofile version="9">
         <runcommandpicklist>
-          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o /home/ilya/bio/app/SlopMap/test/test -l test_data/ref.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o /home/ilya/bio/app/SlopMap/test/test -l test_data/sampleLib.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o /home/ilya/bio/app/SlopMap/test/test -l test_data/sampleLib.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o /home/ilya/bio/app/SlopMap/test/test -l test_data/contaminats.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 test_data/in.sff -o /home/ilya/bio/app/SlopMap/test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o /home/ilya/bio/app/SlopMap/test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o /home/ilya/bio/app/SlopMap/test/test -l test_data/vectors.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o /home/ilya/bio/app/SlopMap/test/test_mem -l test_data/ref.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o /home/ilya/bio/app/SlopMap/test/test_mem -l test_data/sampleLib.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o /home/ilya/bio/app/SlopMap/test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test -l test_data/contaminants.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/in.sff -o test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/contaminants.fasta -t 0.5</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/vectors.fasta -t 0.5</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o /home/ilya/bio/app/SlopMap/test/test -l test_data/contaminants.fasta</runcommand>
+        <runcommand>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/vectors.fasta -t 0.5</runcommand>
         <rundir>.</rundir>
         <buildfirst>false</buildfirst>
         <terminal-type>0</terminal-type>

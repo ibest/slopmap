@@ -25,6 +25,13 @@
 #include "Read.h"
 #include <algorithm>    // std::sort
 #include "dnautil.h"
+#include "gzstream.h"
+#include "sff.h"
+
+/* D E F I N E S *************************************************************/
+#define PRG_NAME "sff2fastq"
+#define SFF_FILE_VERSION "0.8.8"
+
 
 using namespace std;
 using google::dense_hash_map;      // namespace where class lives by default
@@ -46,17 +53,18 @@ typedef struct {
     
 } HitData;
 
-typedef struct {
+struct LibHitData {
     long start_pos;
     long end_pos;
     string lib_id;
-} LibHitData;
+};
 
 
 /*Extern variables*/
 extern dense_hash_map<UBYTE, vector<k_mer_struct> > LibDict;
 extern dense_hash_map<UBYTE, vector<k_mer_struct> >::iterator it_LibDict;
 extern dense_hash_map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
+extern dense_hash_map<string, int >::iterator it_LibDictId;
 
 extern short KMER_SIZE;
 extern short DISTANCE;
@@ -65,8 +73,34 @@ extern short DISTANCE;
 extern bool mode_flag;
 extern double similarity_threshold;
 
+extern char* illumina_file_name_R1;// = "";
+extern char* illumina_file_name_R2;// = "";
+extern char* illumina_file_name_se;
+extern string pe_output_filename1;
+extern string pe_output_filename2;
+extern string se_output_filename;
+extern vector<char*> pe1_names, pe2_names, se_names, roche_names;
+extern string output_prefix;
+/*Report files*/
+extern string rep_file_name;
 
-LibHitData CheckForLib(string seq);
-LibHitData CheckForLib2(string seq);
+extern FILE *rep_file;
+extern fstream pe_output_file1, pe_output_file2;
+    
+
+extern bool old_style_illumina_flag;
+extern int phred_coeff_illumina; //by default assume new illumina (1.8)
+extern bool i64_flag;
+extern bool new2old_illumina;
+
+struct LibHitData CheckForLib(string seq);
+struct LibHitData CheckForLib2(string *seq, dense_hash_map<UBYTE, vector<k_mer_struct> > *LibDict);
+
+extern vector<dense_hash_map<UBYTE, vector<k_mer_struct> > > dict_holder;
+
+void IlluminaDynamicSE();
+void IlluminaDynamic();
+void Roche454Dynamic();
+
 #endif	/* KMERROUTINE_H */
 

@@ -35,7 +35,16 @@ extern dense_hash_map<UBYTE, vector<k_mer_struct> > LibDict;
 extern dense_hash_map<UBYTE, vector<k_mer_struct> >::iterator it_LibDict;
 extern dense_hash_map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
 extern short KMER_SIZE;
- 
+extern bool illumina_pe_flag;
+extern bool illumina_se_flag;
+extern bool roche_flag;
+
+extern FILE *rep_file;
+extern fstream pe_output_file1, pe_output_file2;
+
+extern vector<dense_hash_map<UBYTE, vector<k_mer_struct> > > dict_holder;
+
+
 /*Builds a new Contaminants Dictionary. Here it assumes that frequency is 1*/
 int BuildLibDictionary(char* filename);
 int BuildLibDictionary2(char* filename);

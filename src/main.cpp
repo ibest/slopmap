@@ -15,8 +15,6 @@
 #include "Read.h"
 #include "Dictionary.h"
 #include "KMerRoutine.h"
-#include "gzstream.h"
-#include "sff.h"
 #include "ascii.h"
 #include <stdlib.h>
  #include <stdint.h>
@@ -28,17 +26,12 @@ using google::dense_hash_map;      // namespace where class lives by default
 
 using namespace std;
 
-/* D E F I N E S *************************************************************/
-#define PRG_NAME "sff2fastq"
-#define SFF_FILE_VERSION "0.8.8"
 
-string version = "2.0.0 (2013-09-12)"; 
+string version = "2.0.1 (2013-09-12)"; 
 
 /*Computational parameters (default)*/
 short KMER_SIZE = 15;
-short DISTANCE = 3;
-//short NUM_CONSEQUITIVE_HITS = 3;
-//short NUM_HITS = 10;
+short DISTANCE = 5;
 bool mode_flag = false; //If this flag is true, the program will check NUM_HITS instead of NUM_CONSEQUITIVE_HITS.
 
 /* STANDARD MAPs
@@ -48,15 +41,16 @@ map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
 */
 
 /*Google dense hash*/
-dense_hash_map<UBYTE, vector<k_mer_struct> > LibDict;
-dense_hash_map<UBYTE, vector<k_mer_struct> >::iterator it_LibDict;
-dense_hash_map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
-dense_hash_map<char, int > dnaDict;
+//dense_hash_map<UBYTE, vector<k_mer_struct> > LibDict;
+//dense_hash_map<UBYTE, vector<k_mer_struct> >::iterator it_LibDict;
+//dense_hash_map<string, int > LibDictId; //Represent a pair: <LibId,length of the lib>
+//dense_hash_map<string, int >::iterator it_LibDictId;
+
 char *lib_filename;
 bool lib_flag = false;
 
 /*Illumina*/
-bool illumina_flag = false;
+bool illumina_pe_flag = false;
 bool illumina_se_flag = false;
 char* illumina_file_name_R1;// = "";
 char* illumina_file_name_R2;// = "";
@@ -82,38 +76,16 @@ string rep_file_name;
 
 double similarity_threshold = 0.75; //75% of similarity
 
-pthread_mutex_t coutLock;
-pthread_mutex_t inQueueLock;
-pthread_mutex_t outQueueLock;
-
 void Roche454Dynamic();
 void IlluminaDynamic();
 void IlluminaDynamicSE();
 void WritePEFile(fstream &pe_output_file, Read *read);
 void Roche454Dynamic2();
 
-unsigned long comp_DONE=0; 
-  unsigned long comp_START=0;
-  unsigned long comp_TODO;// = 20;
-  
-
-// the shared data
-std::list< std::string > inQueue;
-std::list< std::string > outQueue; 
-
-struct thread_detail { // information to pass to worker threads
- unsigned long num;
-};
-
-extern "C" {
-    void *workerThread(void *threadarg);
-}
-
-// start the worker threads
-  //std::list< pthread_t* > threadIdList; // just the thread ids
-  std::list< thread_detail > thread_table; // for keeping track of information on the various threads we'll create
-  
-  pthread_t* threadIdList[4];
+FILE *rep_file;
+fstream pe_output_file1, pe_output_file2;
+    
+vector<dense_hash_map<UBYTE, vector<k_mer_struct> > > dict_holder;
 
 int main(int argc, char *argv[]) 
 {
@@ -166,16 +138,6 @@ int main(int argc, char *argv[])
            mode_flag = true;
            continue;
         }
-        /*if( string(argv[i]) == "-nch" ) 
-        {
-           NUM_CONSEQUITIVE_HITS = atoi(argv[++i]);
-           continue;
-        }
-        if( string(argv[i]) == "-nh" ) 
-        {
-           NUM_HITS = atoi(argv[++i]);
-           continue;
-        }*/
         if(string(argv[i]) == "-l" )
         { 
            if ((i+1)<argc ) 
@@ -189,7 +151,7 @@ int main(int argc, char *argv[])
         {
            if ( ( (i+1)<argc ) && (argv[i+1][0] != '-') ) 
            {
-              illumina_flag = true;
+              illumina_pe_flag = true;
               illumina_file_name_R1 = argv[++i];
               pe1_names.push_back(illumina_file_name_R1);
               
@@ -209,7 +171,7 @@ int main(int argc, char *argv[])
         {
            if ( ( (i+1)<argc ) && (argv[i+1][0] != '-') ) 
            {
-              illumina_flag = true;
+              illumina_pe_flag = true;
               illumina_file_name_R2 = argv[++i];
               pe2_names.push_back(illumina_file_name_R2);
               
@@ -230,7 +192,6 @@ int main(int argc, char *argv[])
            if ( ( (i+1)<argc ) && (argv[i+1][0] != '-') ) 
            {
               illumina_se_flag = true;
-              illumina_flag = true;
               illumina_file_name_se = argv[++i];
               se_names.push_back(illumina_file_name_se);
               
@@ -285,11 +246,61 @@ int main(int argc, char *argv[])
         return -1;
     }
     
+    
+    if (i64_flag == true)
+       phred_coeff_illumina = 64;
+    
     //Check if input files exist
-    if (illumina_flag)
+    if (illumina_pe_flag)
     {
-        if(illumina_se_flag)
+        if(pe1_names.size() != pe2_names.size())
         {
+            cout<< "Error: numbers of PE1 files and PE2 files do not match!\n";
+            return 0;
+        }
+        
+        for(int i=0; i<(int)pe1_names.size(); ++i)
+        {
+           if ( !exists( pe1_names[i] ) )
+           {
+               cout<< "Error: file " <<  pe1_names[i] << " does not exist\n";
+               return 0;
+           }
+           if (!exists( pe2_names[i] ) )
+           {
+               cout<< "Error: file " <<  pe2_names[i] << " does not exist\n";
+               return 0;
+           }
+           
+           //Test is the files provided are old-style illumina
+           std::string line1, line2;
+           igzstream in1(pe1_names[i]); igzstream in2(pe2_names[i]); 
+           getline(in1,line1); getline(in2,line2);
+           vector <string> fields1, fields2;
+           split_str( line1, fields1, ":" ); split_str( line2, fields2, ":" );
+           if ( (fields1.size() == 5) && (fields2.size() == 5) )
+           {
+              //Old headers == True
+              old_style_illumina_flag = true;
+           } else if ( (fields1.size() == 10) && (fields2.size() == 10) )
+           {
+              //Old headers == False
+              old_style_illumina_flag = false;
+           } else if ( fields1.size() != fields2.size() )
+           {
+              cout << "Error: impossible to have both old & new illumina as paired-end reads" << endl;
+              return -1;
+           } else 
+           {
+              cout << "Warning: unknown header format in file: " << pe1_names[i] << ", " << pe2_names[i] << endl;
+              old_style_illumina_flag = false;
+           }
+       }
+                        
+       pe_output_filename1 =  output_prefix + "_PE1.fastq";
+       pe_output_filename2 =  output_prefix + "_PE2.fastq";
+          
+    } else if(illumina_se_flag) {
             for(int i=0; i<(int)se_names.size(); ++i)
             {
                 if ( !exists( se_names[i] ) )
@@ -317,70 +328,8 @@ int main(int argc, char *argv[])
                 
             }
             se_output_filename =  output_prefix + "_SE.fastq";
-        } else 
-        {
-                if(pe1_names.size() != pe2_names.size())
-                {
-                        cout<< "Error: numbers of PE1 files and PE2 files do not match!\n";
-                        return 0;
-                } else
-                {
-                        for(int i=0; i<(int)pe1_names.size(); ++i)
-                        {
-        
-                                if ( !exists( pe1_names[i] ) )
-                                {
-                                        cout<< "Error: file " <<  pe1_names[i] << " does not exist\n";
-                                        return 0;
-                                }
-                                if (!exists( pe2_names[i] ) )
-                                {
-                                        cout<< "Error: file " <<  pe2_names[i] << " does not exist\n";
-                                        return 0;
-                                }
-                                
-                                
-                                //Test is the files provided are old-style illumina
-                                std::string line1, line2;
-                                igzstream in1(pe1_names[i]); igzstream in2(pe2_names[i]); 
-                                getline(in1,line1); getline(in2,line2);
-                                vector <string> fields1, fields2;
-                                split_str( line1, fields1, ":" ); split_str( line2, fields2, ":" );
-                                if ( (fields1.size() == 5) && (fields2.size() == 5) )
-                                {
-                                        //Old headers == True
-                                        old_style_illumina_flag = true;
-                                        
-                                } else if ( (fields1.size() == 10) && (fields2.size() == 10) )
-                                {
-                                        //Old headers == False
-                                        old_style_illumina_flag = false;
-                                } else if ( fields1.size() != fields2.size() )
-                                {
-                                    cout << "Error: impossible to have both old & new illumina as paired-end reads" << endl;
-                                    return -1;
-                                } else 
-                                {
-                                    cout << "Warning: unknown header format in file: " << pe1_names[i] << ", " << pe2_names[i] << endl;
-                                     old_style_illumina_flag = false;
-                                }
-                        }
-                        
-                }
-                
-                
-                pe_output_filename1 =  output_prefix + "_PE1.fastq";
-                pe_output_filename2 =  output_prefix + "_PE2.fastq";
-        }
-        
-        
-        if (i64_flag == true)
-           phred_coeff_illumina = 64;
-        
-    } 
-    
-    if(roche_flag)
-    {
+            
+    } else if(roche_flag) {
         for(int i=0; i<(int)roche_names.size(); ++i)
         {
             if (!exists( roche_names[i] ) )
@@ -391,7 +340,7 @@ int main(int argc, char *argv[])
         }
     }
     
-    if(!illumina_flag && !roche_flag)
+    if(!illumina_pe_flag && !roche_flag)
     {
         printf("Error! You have to specify R1 or R2 files or both or Roche 454 file (sff or fastq)\n");
         return(-1);
@@ -437,24 +386,13 @@ int main(int argc, char *argv[])
     t.clear();
     t_prefix.clear();        
     
-    /*Building dictionary*/
-    BuildLibDictionary2(lib_filename);
+    
     
     rep_file_name = output_prefix + ".txt" ;
     
-    if(!illumina_se_flag)
-    {
-        IlluminaDynamic();
-    }
-    else
-    {
-        IlluminaDynamicSE();
-    }
+    /*Building dictionary*/
+    BuildLibDictionary2(lib_filename);
     
-    if(roche_flag)
-    {
-        Roche454Dynamic();
-    }
     
     GET_TIME(finish);
     elapsed = finish - start;
@@ -463,526 +401,3 @@ int main(int argc, char *argv[])
     printf("Program finished.\n");
 }
 
-void Roche454Dynamic()
-{
-    fstream rep_file;
-    rep_file.open(rep_file_name.c_str(),ios::out);
-    
-    for(int i=0; i<(int)roche_names.size(); ++i)
-    {
-            cout << "Parsing file: " << roche_names[i] << "..." << endl;
-        
-            //If SFF format is given -> process it
-            if( string(roche_names[i]).substr( strlen(roche_names[i])-3, 3 ) == "sff" ) 
-            {
-                cout << "File is in SFF format.\n" ;
-                
-                sff_common_header h;
-                sff_read_header rh;
-                sff_read_data rd;
-                FILE *sff_fp;
-
-                if ( (sff_fp = fopen(roche_names[i], "r")) == NULL ) 
-                {
-                        fprintf(stderr,
-                                "[err] Could not open file '%s' for reading.\n", roche_names[i]);
-                        exit(1);
-                }
-               
-                read_sff_common_header(sff_fp, &h);
-                verify_sff_common_header((char*)PRG_NAME, (char*)SFF_FILE_VERSION, &h);
-
-                int left_clip = 0, right_clip = 0;
-                char *bases;
-                uint8_t *quality;
-                
-                int numreads = (int) h.nreads;
-                
-                for (int i = 0; i < numreads; i++) 
-                { 
-                    read_sff_read_header(sff_fp, &rh);
-                    read_sff_read_data(sff_fp, &rd, h.flow_len, rh.nbases);
-
-                    get_clip_values(rh, 0, &left_clip, &right_clip);
-                    
-                    // create bases string 
-                    bases = get_read_bases(rd, left_clip, right_clip);
-
-                    // create quality array 
-                    quality = get_read_quality_values(rd, left_clip, right_clip);
-
-                    //LibHitData match = CheckForLib(string(bases));
-                    LibHitData match = CheckForLib2(string(bases));
-                    if(match.start_pos != -1) 
-                    {
-                        rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << rh.name << "\t" << bases << "\t" << quality << "\n";
-                    }
-                                        
-                    free(bases);
-                    free(quality);
-                    free_sff_read_header(&rh);
-                    free_sff_read_data(&rd);
-
-                }
-
-                fclose(sff_fp);
-
-               
-            } 
-            else if(string(roche_names[i]).substr( strlen(roche_names[i])-5, 5 ) == "fastq") 
-            {
-               //FASTQ file given. Process it.
-               cout << "File is in FASTQ format, starting conversion...\n" ;
-               
-               string line, bases, quality, readID;
-               int ii = 0;
-               igzstream in(roche_names[i]);
-               while ( getline(in,line) ) 
-               {
-                   if(ii==0) readID = line; /*Read ID*/
-                
-                   if(ii==1) bases = line; /*actual data*/
-                
-                   if(ii==3) 
-                   {
-                       LibHitData match = CheckForLib(string(bases));
-                       if(match.start_pos != -1) 
-                       {
-                          rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << readID << "\t" << bases << "\t" << line << "\n";
-                       }
-                       
-                       ii = 0;
-                   }
-                   ii++;
-               }
-               
-               in.close();
-               
-            }
-    }
-    
-    rep_file.close();
-}
-/*
-void Roche454Dynamic2()
-{
-    fstream rep_file;
-    rep_file.open(rep_file_name.c_str(),ios::out);
-    
-    for(int i=0; i<(int)roche_names.size(); ++i)
-    {
-            cout << "Parsing file: " << roche_names[i] << "..." << endl;
-        
-            //If SFF format is given -> process it
-            if( string(roche_names[i]).substr( strlen(roche_names[i])-3, 3 ) == "sff" ) 
-            {
-                cout << "File is in SFF format.\n" ;
-                
-                sff_common_header h;
-                sff_read_header rh;
-                sff_read_data rd;
-                FILE *sff_fp;
-
-                if ( (sff_fp = fopen(roche_names[i], "r")) == NULL ) 
-                {
-                        fprintf(stderr,
-                                "[err] Could not open file '%s' for reading.\n", roche_names[i]);
-                        exit(1);
-                }
-               
-                read_sff_common_header(sff_fp, &h);
-                verify_sff_common_header((char*)PRG_NAME, (char*)SFF_FILE_VERSION, &h);
-
-                int left_clip = 0, right_clip = 0, nbases = 0;
-                char *bases;
-                uint8_t *quality;
-                
-                int numreads = (int) h.nreads;
-                
-                for (int i = 0; i < numreads; i++) 
-                { 
-                    read_sff_read_header(sff_fp, &rh);
-                    read_sff_read_data(sff_fp, &rd, h.flow_len, rh.nbases);
-
-                    get_clip_values(rh, 0, &left_clip, &right_clip);
-                    nbases = right_clip - left_clip;
-
-                    // create bases string 
-                    bases = get_read_bases(rd, left_clip, right_clip);
-
-                    // create quality array 
-                    quality = get_read_quality_values(rd, left_clip, right_clip);
-
-                    LibHitData match = CheckForLib(string(bases));
-                    if(match.start_pos != -1) 
-                    {
-                        rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << rh.name << "\t" << bases << "\t" << quality << "\n";
-                    }
-                                        
-                    free(bases);
-                    
-                    inQueue.push_back(string(bases));
-                    
-                    
-                    free(quality);
-                    free_sff_read_header(&rh);
-                    free_sff_read_data(&rd);
-                    
-                }
-
-                fclose(sff_fp);
-
-               
-            } 
-            else if(string(roche_names[i]).substr( strlen(roche_names[i])-5, 5 ) == "fastq") 
-            {
-               //FASTQ file given. Process it.
-               cout << "File is in FASTQ format, starting conversion...\n" ;
-               
-               string line, bases, quality, readID;
-               int ii = 0;
-               igzstream in(roche_names[i]);
-               while ( getline(in,line) ) 
-               {
-                   if(ii==0) readID = line; //Read ID
-                
-                   if(ii==1) bases = line; //actual data
-                
-                   if(ii==3) 
-                   {
-                       LibHitData match = CheckForLib(string(bases));
-                       if(match.start_pos != -1) 
-                       {
-                          rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << readID << "\t" << bases << "\t" << line << "\n";
-                       }
-                       
-                       ii = 0;
-                   }
-                   ii++;
-               }
-               
-               in.close();
-               
-            }
-    }
-    
-    rep_file.close();
-}
-*/
-//Dynamic Illumina: does not need space to store reads:
-void IlluminaDynamic()
-{
-    FILE *rep_file;
-    fstream pe_output_file1, pe_output_file2;
-    
-    if ( (rep_file = fopen((char*)rep_file_name.c_str(), "w")) == NULL ) 
-    {
-        fprintf(stderr,"[err] Could not open file '%s' for reading.\n", (char*)rep_file_name.c_str());
-        exit(1);
-    }
-    
-    vector<string> record_block1, record_block2;
-    
-    for(int jj=0; jj<(int)pe1_names.size(); ++jj)
-    {
-        int ii = 0;
-        
-        std::string line1, line2;
-        igzstream in1( pe1_names[jj] ); //for R1
-        igzstream in2( pe2_names[jj] ); //for R2
-        
-        cout << "Processing files: " << pe1_names[jj] << ", " << pe2_names[jj] << "\n";
-        
-        while ( getline(in1,line1) && getline(in2,line2) )
-        {
-            /*Read ID*/
-            if(ii==0) 
-            {
-                //Check for order
-                vector <string> fields1, fields2;
-                split_str( line1, fields1, " " );
-                split_str( line2, fields2, " " );
-                if( (fields1[0] != fields2[0] ) && !old_style_illumina_flag)
-                {
-                    cout << "Warning: read IDs do not match in input files: PE1-> " << pe1_names[jj] << ", PE2-> " << pe2_names[jj] << endl;
-                }
-                        
-                fields1.clear();
-                fields2.clear();
-                        
-                if ( new2old_illumina && !old_style_illumina_flag ) //if convert to old-style illumina headers is true and not old illumina files.
-                {
-                    split_str( line1, fields1, " " );
-                    split_str( fields1[0], fields2, ":" );
-                    line1 = string(fields2[0] + "_" + fields2[2] + ":" + fields2[3] + ":" + fields2[4] + ":" + fields2[5] + ":" + fields2[6] + "#0/" + fields1[1].substr(0,1) );
-                            
-                    fields1.clear();
-                    fields2.clear();
-                            
-                    split_str( line2, fields1, " " );
-                    split_str( fields1[0], fields2, ":" );
-                            
-                    line2 = string(fields2[0] + "_" + fields2[2] + ":" + fields2[3] + ":" + fields2[4] + ":" + fields2[5] + ":" + fields2[6] + "#0/" + fields1[1].substr(0,1) );//+ " (" + line2 + ")");
-                            
-                    fields1.clear();
-                    fields2.clear();
-                }
-                        
-                record_block1.push_back(line1); 
-                record_block2.push_back(line2);
-                        
-                ii++;
-                continue;
-            }
-            /*DNA string*/
-            if(ii==1) 
-            {
-                record_block1.push_back(line1); /*DNA string*/
-                record_block2.push_back(line2);
-                ii++;
-                continue;
-            }
-            /*a symbol "+"*/
-            if(ii==2) 
-            {
-                record_block1.push_back(line1);
-                record_block2.push_back(line2);
-                ii++;
-                continue;
-            }
-            if(ii==3) 
-            {
-                ii=0;
-           
-                Read *read1 = new Read();
-                read1->illumina_readID = record_block1[0];
-                read1->initial_length = record_block1[1].length();
-                read1->read = record_block1[1];
-                read1->illumina_quality_string = line1;
-                        
-                Read *read2 = new Read();
-                read2->illumina_readID = record_block2[0];
-                read2->initial_length = record_block2[1].length();
-                read2->read = record_block2[1];
-                read2->illumina_quality_string = line2;
-                
-                //Serial realization - useful for debugging if something does not work as expected
-                LibHitData match = CheckForLib2(read1->read);
-                if(match.start_pos != -1) 
-                {
-                  string _str = match.lib_id + "\t" + int2str(match.start_pos) + "\t" + int2str(match.end_pos) + "\t" + read1->illumina_readID + "\t" + read1->read + "\t" + read1->illumina_quality_string + "\t" + read2->illumina_readID + "\t" + read2->read + "\t" + read2->illumina_quality_string + "\n";
-                  fputs((char*)_str.c_str(), rep_file);
-                  
-                  //Construct FASTQ entry
-                  //Check if output files are already opened:
-                  if(!pe_output_file1.is_open()) {
-                        pe_output_file1.open( pe_output_filename1.c_str(), ios::out );
-                  }
-                  if(!pe_output_file2.is_open()) {
-                        pe_output_file2.open( pe_output_filename2.c_str(), ios::out );
-                  }
-                   
-                  WritePEFile(pe_output_file1, read1);
-                  WritePEFile(pe_output_file2, read2);
-                }
-                else 
-                {
-                    match = CheckForLib2(read2->read);
-                    if(match.start_pos != -1) 
-                    {
-                        string _str = match.lib_id + "\t" + int2str(match.start_pos) + "\t" + int2str(match.end_pos) + "\t" + read1->illumina_readID + "\t" + read1->read + "\t" + read1->illumina_quality_string + "\t" + read2->illumina_readID + "\t" + read2->read + "\t" + read2->illumina_quality_string + "\n";
-                        fputs((char*)_str.c_str(), rep_file);
-                        
-                        if(!pe_output_file1.is_open()) {
-                                pe_output_file1.open( pe_output_filename1.c_str(), ios::out );
-                        }
-                        if(!pe_output_file2.is_open()) {
-                                pe_output_file2.open( pe_output_filename2.c_str(), ios::out );
-                        }
-                        //Construct FASTQ entry
-                        WritePEFile(pe_output_file1, read1);
-                        WritePEFile(pe_output_file2, read2);
-                    }
-                }
-                
-                record_block1.clear();
-                read1->illumina_readID.clear(); 
-                read1->illumina_quality_string.clear();
-                read1->read.clear();
-          
-                record_block2.clear();
-                read2->illumina_readID.clear(); 
-                read2->illumina_quality_string.clear();
-                read2->read.clear();
-          
-                delete read1;
-                delete read2;
-            }
-        }
-        in1.close();
-        in2.close();
-    }
-    
-    pe_output_file1.close();
-    pe_output_file2.close();
-    
-    cout << "====================Done====================\n";  
-    fclose(rep_file);
-   
-}
-
-
-void IlluminaDynamicSE()
-{
-    fstream rep_file;
-    fstream se_output_file;
-    rep_file.open(rep_file_name.c_str(),ios::out);
-    
-    vector<string> record_block;
-    
-    for(int jj=0; jj<(int)se_names.size(); ++jj)
-    {
-        int ii = 0;
-        
-        std::string line;
-        igzstream in(se_names[jj]);
-        
-        cout << "Processing file: " << se_names[jj] << "\n";
-        
-        while ( getline(in,line) )
-        {
-            /*Read ID*/
-            if(ii==0) 
-            {
-                //Check for order
-                vector <string> fields1, fields2;
-                        
-                if ( new2old_illumina && !old_style_illumina_flag ) //if convert to old-style illumina headers is true and not old illumina files.
-                {
-                    split_str( line, fields1, " " );
-                    split_str( fields1[0], fields2, ":" );
-                    line = string(fields2[0] + "_" + fields2[2] + ":" + fields2[3] + ":" + fields2[4] + ":" + fields2[5] + ":" + fields2[6] + "#0/" + fields1[1].substr(0,1) );
-                            
-                    fields1.clear();
-                    fields2.clear();
-                }
-                        
-                record_block.push_back(line); 
-                        
-                ii++;
-                continue;
-            }
-            /*DNA string*/
-            if(ii==1) 
-            {
-                record_block.push_back(line); /*DNA string*/
-                ii++;
-                continue;
-            }
-            /*a symbol "+"*/
-            if(ii==2) 
-            {
-                record_block.push_back(line);
-                ii++;
-                continue;
-            }
-            if(ii==3) 
-            {
-                ii=0;
-           
-                Read *read = new Read();
-                read->illumina_readID = record_block[0];
-                read->initial_length = record_block[1].length();
-                read->read = record_block[1];
-                read->illumina_quality_string = line;
-                
-                //Serial realization - useful for debugging if something does not work as expected
-                LibHitData match = CheckForLib2(read->read);
-                if(match.start_pos != -1) 
-                {
-                    rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << read->illumina_readID << "\t" << read->read << "\t" << read->illumina_quality_string << "\n";
-                    
-                    if(!se_output_file.is_open()) 
-                    {
-                        se_output_file.open( se_output_filename.c_str(), ios::out );
-                    }
-                  
-                    //Create FASTQ entry
-                    WritePEFile(se_output_file, read);
-                    
-                } 
-                
-                record_block.clear();
-                read->illumina_readID.clear(); 
-                read->illumina_quality_string.clear();
-                read->read.clear();
-                
-                delete read;
-                
-            }
-        }
-        in.close();
-        
-    }
-    
-    
-    cout << "====================Done====================\n";  
-    
-    
-    rep_file.close();
-}
-
-void WritePEFile(fstream &pe_output_file, Read *read)
-{
-    pe_output_file << read->illumina_readID << endl;
-    pe_output_file << read->read << endl;
-    pe_output_file << '+' << endl;
-    pe_output_file << read->illumina_quality_string << endl;
-}
-
-
-void *workerThread(void *threadarg) 
-{
-//   struct thread_detail *my_data;
-//   my_data = (thread_detail *) threadarg;
-//   int taskid = my_data->num;
-   //std::stringstream ss; ss<<taskid;
-
-   bool somethingTodo=true;
-   while (somethingTodo) // keep on working until inQueue is empty 
-    {
-      std::string workOnMe;
-       
-      pthread_mutex_lock( &inQueueLock );
-      
-      if (inQueue.size()==0) 
-      { 
-          somethingTodo=false; 
-      }
-      else
-      {
-         workOnMe = inQueue.front();//receive task
-         inQueue.pop_front();
-      }
-      
-      pthread_mutex_unlock( &inQueueLock );
-
-      if (!somethingTodo) break;
-      
-      // let's pretend this takes some time, add a delay to the computation
-      LibHitData match = CheckForLib(string(workOnMe));
-      //if(match.start_pos != -1) 
-      //{
-      //   cout << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << /*rh.name << "\t" << bases << "\t" << quality <<*/ "\n";
-      //}
-      
-      //workOnMe = "thread " + taskString + " worked on " + workOnMe;
-      
-      pthread_mutex_lock( &outQueueLock );
-      outQueue.push_back( "F" ); //result of thread's function
-      pthread_mutex_unlock( &outQueueLock );
-      
-    }
-
-   pthread_exit(NULL);
-}
