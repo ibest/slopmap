@@ -27,11 +27,11 @@ using google::dense_hash_map;      // namespace where class lives by default
 using namespace std;
 
 
-string version = "2.0.1 (2013-09-12)"; 
+string version = "2.0.2 (2014-02-23)"; 
 
 /*Computational parameters (default)*/
 short KMER_SIZE = 15;
-short DISTANCE = 5;
+short DISTANCE = 1;
 bool mode_flag = false; //If this flag is true, the program will check NUM_HITS instead of NUM_CONSEQUITIVE_HITS.
 
 /* STANDARD MAPs
@@ -58,6 +58,8 @@ char* illumina_file_name_se;
 string pe_output_filename1;
 string pe_output_filename2;
 string se_output_filename;
+string fastq_output_filename;
+
 vector<char*> pe1_names, pe2_names, se_names, roche_names;
 
 /*Roche 454*/
@@ -389,6 +391,7 @@ int main(int argc, char *argv[])
     
     
     rep_file_name = output_prefix + ".txt" ;
+    fastq_output_filename = output_prefix + ".fastq" ;
     
     /*Building dictionary*/
     BuildLibDictionary2(lib_filename);

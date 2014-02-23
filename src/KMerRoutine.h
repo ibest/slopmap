@@ -79,6 +79,7 @@ extern char* illumina_file_name_se;
 extern string pe_output_filename1;
 extern string pe_output_filename2;
 extern string se_output_filename;
+extern string fastq_output_filename;
 extern vector<char*> pe1_names, pe2_names, se_names, roche_names;
 extern string output_prefix;
 /*Report files*/
@@ -101,6 +102,8 @@ extern vector<dense_hash_map<UBYTE, vector<k_mer_struct> > > dict_holder;
 void IlluminaDynamicSE();
 void IlluminaDynamic();
 void Roche454Dynamic();
+
+void WriteFastqFile(fstream &fastq_output_file, string readID, char* bases, uint8_t* quality);
 
 #endif	/* KMERROUTINE_H */
 

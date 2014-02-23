@@ -75,6 +75,14 @@ struct LibHitData CheckForLib2(string *seq, dense_hash_map<UBYTE, vector<k_mer_s
    return most_similar;
 }
 
+void WriteFastqFile(fstream &fastq_output_file, string readID, char* bases, uint8_t* quality)
+{
+    fastq_output_file << readID << endl;
+    fastq_output_file << bases << endl;
+    fastq_output_file << '+' << endl;
+    fastq_output_file << quality << endl;
+}
+
 void WritePEFile(fstream &pe_output_file, Read *read)
 {
     pe_output_file << read->illumina_readID << endl;
@@ -87,6 +95,9 @@ void Roche454Dynamic()
 {
     fstream rep_file;
     rep_file.open(rep_file_name.c_str(),ios::out);
+    
+    fstream fastq_output_file;
+    fastq_output_file.open(fastq_output_filename.c_str(), ios::out);
     
     for(int i=0; i<(int)roche_names.size(); ++i)
     {
@@ -131,11 +142,13 @@ void Roche454Dynamic()
                     // create quality array 
                     quality = get_read_quality_values(rd, left_clip, right_clip);
                     b = string(bases);
-                    for(int k =0; k<dict_holder.size(); k++) {
+                    for(unsigned int k =0; k<dict_holder.size(); k++) {
                         struct LibHitData match = CheckForLib2(&b,&dict_holder[k]);
                         if(match.start_pos != -1) 
                         {
-                                rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << rh.name << "\t" << bases << "\t" << quality << "\n";
+                            std::string readID = string(rh.name);
+                            rep_file << match.lib_id << "\t" << match.start_pos << "\t" << match.end_pos << "\t" << rh.name << "\t" << bases << "\t" << quality << "\n";
+                            WriteFastqFile(fastq_output_file, "@"+readID, bases, quality);
                         }
                     }           
                     
@@ -166,7 +179,7 @@ void Roche454Dynamic()
                 
                    if(ii==3) 
                    {
-                       for(int k =0; k<dict_holder.size(); k++) {
+                       for(unsigned int k =0; k<dict_holder.size(); k++) {
                                 struct LibHitData match = CheckForLib2(&b,&dict_holder[k]);
                                 if(match.start_pos != -1) 
                                 {
@@ -285,7 +298,7 @@ void IlluminaDynamic()
                 read2->illumina_quality_string = line2;
                 
                 //Serial realization - useful for debugging if something does not work as expected
-                for(int k =0; k<dict_holder.size(); k++) {
+                for(unsigned int k =0; k<dict_holder.size(); k++) {
                         struct LibHitData match = CheckForLib2(&read1->read,&(dict_holder[k]));
                         if(match.start_pos != -1) 
                         {
@@ -398,7 +411,7 @@ void IlluminaDynamicSE()
                 read->illumina_quality_string = line;
                 
                 //Serial realization - useful for debugging if something does not work as expected
-                for(int k =0; k<dict_holder.size(); k++) {
+                for(unsigned int k =0; k<dict_holder.size(); k++) {
                         struct LibHitData match = CheckForLib2(&read->read,&dict_holder[k]);
                         if(match.start_pos != -1) 
                         {
