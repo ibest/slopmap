@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <iostream>
-#include "sparsehash-2.0.2/src/sparsehash/dense_hash_map"
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -17,13 +16,9 @@
 #include "KMerRoutine.h"
 #include "ascii.h"
 #include <stdlib.h>
- #include <stdint.h>
-//#include "dnautil.h"
-
-using google::dense_hash_map;      // namespace where class lives by default
+#include <stdint.h>
 
 using namespace std;
-
 
 string version = "2.0.2 (2014-02-23)"; 
 
@@ -73,7 +68,8 @@ void Roche454Dynamic2();
 FILE *rep_file;
 fstream pe_output_file1, pe_output_file2;
     
-vector<dense_hash_map<UBYTE, vector<k_mer_struct> > > dict_holder;
+//vector<dense_hash_map<UBYTE, vector<k_mer_struct> > > dict_holder;
+vector<map<UBYTE, vector<k_mer_struct> > > dict_holder;
 
 int main(int argc, char *argv[]) 
 {
