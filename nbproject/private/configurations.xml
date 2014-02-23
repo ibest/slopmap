@@ -119,7 +119,7 @@
     <conf name="Default" type="0">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <platform>2</platform>
+        <platform>4</platform>
       </toolsSet>
       <compile>
         <compiledirpicklist>
@@ -150,15 +150,18 @@
       </nativedebugger>
       <runprofile version="9">
         <runcommandpicklist>
-          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test -l test_data/contaminants.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 test_data/in.sff -o test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/contaminants.fasta</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/contaminants.fasta -t 0.5</runcommandpicklistitem>
-          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/vectors.fasta -t 0.5</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/solexa/s_1_1_sequence.txt -2 test_data/solexa/s_1_2_sequence.txt -o test/test -l test_data/target.fasta -k 7 -t 0.8</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/solexa/s_1_1_sequence.txt -2 test_data/solexa/s_1_2_sequence.txt -o test/test -l test_data/target.fasta -t 0.5</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/solexa/s_1_1_sequence.txt -2 test_data/solexa/s_1_2_sequence.txt -o test/test -l test_data/target.fasta -t 0.1</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/solexa/s_1_1_sequence.txt -2 test_data/solexa/s_1_2_sequence.txt -o test/test -l test_data/target.fasta -t 0.5 -k 5</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/target.fasta -t 0.5 -k 5</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/target.fasta -t 0.5</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/target.fasta -t 0.5 -k 7</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/sff/HLIQV0O01.sff -o test/test -l test_data/target.fasta -t 0.1</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o test/test -l test_data/target-3.fasta -t 0.1</runcommandpicklistitem>
+          <runcommandpicklistitem>bin/./slopmap -454 test_data/SmallTest.sff -o test/test -l test_data/target-2.fasta</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>bin/./slopmap -1 test_data/R1.fastq.gz -2 test_data/R2.fastq.gz -o test/test -l test_data/vectors.fasta -t 0.5</runcommand>
+        <runcommand>bin/./slopmap -454 test_data/SmallTest.sff -o test/test -l test_data/target-2.fasta</runcommand>
         <rundir>.</rundir>
         <buildfirst>false</buildfirst>
         <terminal-type>0</terminal-type>

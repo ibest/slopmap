@@ -101,7 +101,6 @@ struct dnaSeq
     char *name;           /* Name of sequence. */
     DNA *dna;             /* Sequence base by base. */
     int size;             /* Size of sequence. */
-    //Bits* mask;           /* Repeat mask (optional) */
 };
 
 //static void initNtVal();

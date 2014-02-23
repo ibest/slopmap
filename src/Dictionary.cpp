@@ -28,7 +28,7 @@ struct twoBit *twoBitFromDnaSeq(struct dnaSeq *seq, string lib_id)
         LibDict.set_empty_key(z);
     
      
-        for (i=0; i<end; i += KMER_SIZE)
+        for (i=0; i<end; ++i)//KMER_SIZE)
         {
                 k_mer_struct k_struct;
                 k_struct.seq_id = lib_id;
